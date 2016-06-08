@@ -1,0 +1,40 @@
+{
+    "name": "herstal",
+    "version": "0.0.0",
+    "description": "A basic engine for multiplayer fps games written in Javascript",
+    "homepage": "https://github.com/harraps/herstal.js",
+    "author": "Olivier Schyns <olivier_schyns@hotmail.fr>",
+    "keywords": [
+        "herstal.js",
+        "herstal",
+        "web",
+        "fps",
+        "engine",
+        "3d"
+    ],
+    "engines": {
+        "node": "*"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/harraps/herstal.js.git"
+    },
+    "bugs": {
+        "url": "https://github.com/harraps/herstal.js/issues"
+    },
+    "devDependencies": {
+        "jshint": "latest",
+        "uglify-js": "latest",
+        "nodeunit": "latest",
+        "grunt": "latest",
+        "grunt-contrib-jshint": "latest",
+        "grunt-contrib-nodeunit": "latest",
+        "grunt-contrib-concat": "latest",
+        "grunt-contrib-uglify": "latest"
+    },
+    "dependencies":{
+        "three": "latest",
+        "cannon": "latest",
+        "socket.io": "latest"
+    }
+}

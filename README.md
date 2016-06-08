@@ -1,2 +1,2 @@
-# Tremolo
-Remake of the famous Tremulous game but with a cartoon style.
+# Herstal.JS
+A FPS game engine made for the web.

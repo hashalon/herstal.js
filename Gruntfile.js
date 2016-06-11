@@ -1,57 +1,97 @@
-var fs = require('fs')
+var fs    = require('fs');
+var grunt = require('grunt');
 
 module.exports = function(grunt) {
-    
-    var buildPath = {
-        shared_src: "src/shared/**/*.js",
-        server_src: "src/server/**/*.js",
-        client_src: "src/client/**/*.js",
-        shared:     "build/herstal.shared.js",
-        server:     "build/herstal.server.js",
-        client:     "build/herstal.client.js",
-        shared_min: "build/herstal.shared.min.js",
-        server_min: "build/herstal.server.min.js",
-        client_min: "build/herstal.client.min.js"
-    };
 
     grunt.initConfig({
-        concat: {
-            options: {
-                separator: '\n\n'
+        encase : {
+            dev_shared : {
+                separator : '\n\n',
+                enviroment : 'node',
+                useStrict : false,
+                exports : [
+                    'WORLD',
+                    'Character',
+                    'Player',
+                ],
+                src : [
+                    // first add those files
+                    "src/shared/Init.js",
+                    // then everything else
+                    "src/shared/**/*.js",
+                ],
+                //src  : "src/shared/**/*.js",
+                dest : "build/es6/herstal.shared.js",
             },
-            src_shared : {
-                src:  buildPath.shared_src,
-                dest: buildPath.shared
+            dev_server : {
+                separator : '\n\n',
+                enviroment : 'node',
+                useStrict : false,
+                exports : [
+
+                ],
+                src : [
+                    // first add those files
+                    "src/server/Init.js",
+                    // then everything else
+                    //"src/server/**/*.js",
+                ],
+                //src  : "src/server/**/*.js",
+                dest : "build/es6/herstal.server.js",
+                params : {
+                    "serverName" : "name",
+                    "maxPlayers" : "nbPlayers",
+                    "mapNames"   : "maps",
+                    "gameModes"  : "modes",
+                },
             },
-            src_server : {
-                src:  buildPath.server_src,
-                dest: buildPath.server
+            dev_client : {
+                separator : '\n\n',
+                enviroment : 'browser',
+                useStrict : false,
+                exports : [
+
+                ],
+                src : [
+                    // first add those files
+                    "src/client/Init.js",
+                    // then everything else
+                    //"src/client/**/*.js",
+                ],
+                //src  : "src/client/**/*.js",
+                dest : "build/es6/herstal.client.js",
             },
-            src_client : {
-                src:  buildPath.client_src,
-                dest: buildPath.client
-            }
-            
+        },
+        '6to5' : {
+            options : {
+                sourceMap : false,
+            },
+            dist : {
+                files : {
+                    "build/es5/herstal.shared.js" : "build/es6/herstal.shared.js",
+                    "build/es5/herstal.server.js" : "build/es6/herstal.server.js",
+                    "build/es5/herstal.client.js" : "build/es6/herstal.client.js",
+                }
+            },
         },
         uglify : {
-            files : {
-                min_shared : {
-                    src:  buildPath.shared,
-                    dest: buildPath.shared_min
-                },
-                min_server : {
-                    src:  buildPath.server,
-                    dest: buildPath.server_min
-                },
-                min_client : {
-                    src:  buildPath.client,
-                    dest: buildPath.client_min
+            dist : {
+                files : {
+                    "build/min/herstal.shared.min.js" : "build/es5/herstal.shared.js",
+                    "build/min/herstal.server.min.js" : "build/es5/herstal.server.js",
+                    "build/min/herstal.client.min.js" : "build/es5/herstal.client.js",
                 }
             }
         },
     });
-    
+
+    grunt.loadNpmTasks('grunt-encase');
+    grunt.loadNpmTasks('grunt-6to5');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.registerTask('default', ['concat', 'uglify']);
+    //grunt.loadNpmTasks('grunt-contrib-nodeunit');
+    //grunt.registerTask('default', ['encase', '6to5', 'uglify']);
+    //grunt.registerTask('test'   , ['nodeunit']);
+    grunt.registerTask('extractjs', function(){
+
+    });
 };

@@ -1,5 +1,4 @@
-var CANNON = require('../../../lib/cannon.js');
-
+// adds function for CANNON.js objects
 /**
  * Get the angle between this vector and the given vector.
  * @method getAngle

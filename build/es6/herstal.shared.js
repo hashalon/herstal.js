@@ -1,3 +1,19 @@
+(function(undefined) {
+
+// we need modules some other modules
+var CANNON, module;
+if(typeof module === 'undefined'){
+	module = {};
+}
+if(typeof CANNON === 'undefined'){
+	throw new Error('Herstal require CANNON.js to work');
+}
+
+var WORLD = new CANNON.World();
+WORLD.gravity.set(0, -100, 0);
+WORLD.defaultContactMaterial.friction = 0.1;
+
+
 /**
  * Base class for all characters
  */
@@ -377,3 +393,39 @@ Character.prototype.updateCrounch = function(crounch){
 		}
 	}
 };
+
+
+/**
+ * Player informations for both server and client
+ * name of the player and its colors: primary, secondary and laser
+ */
+
+ function Player(name, colors){
+
+	 this.id = Player.currentId++;
+ }
+ Player.prototype.constructor = Player;
+
+ Player.currentId = 0;
+
+
+// adds function for CANNON.js objects
+/**
+ * Get the angle between this vector and the given vector.
+ * @method getAngle
+ * @param {Vec3} v Vector to get the angle from
+ * @return {number}
+ */
+CANNON.Vec3.prototype.getAngle = function(v){
+	// we need two vectors
+	var v1 = this.clone();
+	var v2 = v ? new CANNON.Vec3(v.x, v.y, v.z) : CANNON.Vec3.UNIT_Y;
+
+	// acos(dot(v1 / norm(v1), v2 / norm(v2)))
+	v1.normalize();
+	v2.normalize();
+	return Math.acos( v1.dot(v2) );
+};
+
+module.exports = { WORLD: WORLD, Character: Character, Player: Player };
+})();

@@ -1,56 +1,90 @@
 var gulp   = require('gulp'),
 	concat = require('gulp-concat'),
 	rename = require('gulp-rename'),
+	insert = require('gulp-insert'),
+	babel  = require('gulp-babel'),
 	uglify = require('gulp-uglify'),
-	es6trp = require('gulp-es6-transpiler');
-
-var files = {
-	shared : {
-		srcs : [
-			"src/shared/Init.js",
-			"src/shared/**/*.js",
-		],
-		src  : "src/shared/**/*.js",
-		dest : "build/",
-		name : "herstal.shared.js"
-		min  : "herstal.shared.min.js",
-	},
-	server : {
-		srcs : [
-			"src/server/Init.js",
-			"src/server/**/*.js",
-		],
-		src  : "src/server/**/*.js",
-		dest : "build/"
-		name : "herstal.server.js",
-		min  : "herstal.shared.min.js",
-	},
-	client : {
-		srcs : [
-			"src/client/Init.js",
-			"src/client/**/*.js",
-		],
-		src  : "src/client/**/*.js",
-		dest : "build/"
-		name : "herstal.client.js",
-		min  : "herstal.client.min.js",
-	},
-};
+	srcmap = require('gulp-sourcemaps');
 
 gulp.task('build-shared', function() {
-	var file = gulp.src(files.shared.srcs)
-	.pipe(concat(files.shared.name));
-	
+	var
+	prepend = "(function (){\n",
+	append  = "\n})();",
+	srcs = [
+		"src/shared/Init.js",
+		"src/shared/**/*.js",
+	],
+	dist = "build",
+	name = "herstal.shared.js",
+	min  = "herstal.shared.min.js";
+
+	// extended file
+	var file = gulp.src(srcs)
+		.pipe(concat(name))
+		.pipe(insert.wrap(prepend, append))
+		.pipe(babel({
+			presets : ['es2015']
+		}))
+		.pipe(gulp.dest(dist));
+
+	// minified file
+	var min_file = file.pipe(rename(min))
+		.pipe(srcmap.init())
+		.pipe(uglify())
+		.pipe(srcmap.write("./"))
+		.pipe(gulp.dest(dist));
 });
 
 gulp.task('build-server', function() {
+	var
+	prepend = "(function (){\n",
+	append  = "\n})();",
+	srcs = [
+		"src/server/Init.js",
+		"src/server/**/*.js",
+	],
+	dist = "build",
+	name = "herstal.server.js",
+	min  = "herstal.server.min.js";
 
-	return gulp.src('')
+	return gulp.src(srcs)
+		.pipe(concat(name))
+		.pipe(insert.wrap(prepend, append))
+		.pipe(babel({
+			presets : ['es2015']
+		}))
+		.pipe(gulp.dest(dist));
+	// server doesn't need minified files
 });
 
 gulp.task('build-client', function() {
+	var
+	prepend = "(function (){\n",
+	append  = "\n})();",
+	srcs = [
+		"src/client/Init.js",
+		"src/client/**/*.js",
+	],
+	dist = "build",
+	name = "herstal.client.js",
+	min  = "herstal.client.min.js";
 
-	return gulp.src('')
+	// extended file
+	var file = gulp.src(srcs)
+		.pipe(concat(name))
+		.pipe(insert.wrap(prepend, append))
+		.pipe(babel({
+			presets : ['es2015']
+		}))
+		.pipe(gulp.dest(dist));
+
+	// minified file
+	var min_file = file.pipe(rename(min))
+		.pipe(srcmap.init())
+		.pipe(uglify())
+		.pipe(srcmap.write("./"))
+		.pipe(gulp.dest(dist));
+
 });
 
 gulp.task('default', ['build-shared', 'build-server', 'build-client']);

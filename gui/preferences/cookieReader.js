@@ -15,7 +15,8 @@ CooMan.read = function(){
 		// the cookie should last for two month
 	    d.setTime(d.getTime() + ( 60 *24*60*60*1000));
 		// we init with default values
-		cookie = "expires="+d.toUTCString()+";name=Snoname;model=N0;colorAlpha=S#0000FF;colorBeta=S#FF0000;colorOwn1=S#00FF00;colorOwn2=S#FFFFFF;colorLaser=S#FFFF00;isFullscreen=Bfalse;displayX=N1280;displayY=N720;volumeMaster=N50;volumeEffect=N50;volumeMusic=N50;mouseS=N50;invertX=Bfalse;invertY=Bfalse;moveF=K87;moveB=K83;moveL=K65;moveR=K68;jump=K32;crounch=K16;fire1=M0;fire2=M2;use=K69;reload=K82;melee=K81;zoom=M1;prevWeap=M-1;nextWeap=M-2;weap1=K49;weap2=K50;weap3=K51;weap4=K52;weap5=K53;weap6=K54;weap7=K55;weap8=K56;weap9=K57;weap0=K48";
+		cookie = "expires="+d.toUTCString()+
+";name=Snoname;model=N0;colorAlpha=S#0000FF;colorBeta=S#FF0000;colorOwn1=S#00FF00;colorOwn2=S#FFFFFF;colorLaser=S#FFFF00;isFullscreen=Bfalse;displayX=N1280;displayY=N720;volumeMaster=N50;volumeEffect=N50;volumeMusic=N50;mouseS=N50;invertX=Bfalse;invertY=Bfalse;moveF=K87;moveB=K83;moveL=K65;moveR=K68;jump=K32;crounch=K16;fire1=M0;fire2=M2;use=K69;reload=K82;melee=K81;zoom=M1;prevWeap=M-1;nextWeap=M-2;weap1=K49;weap2=K50;weap3=K51;weap4=K52;weap5=K53;weap6=K54;weap7=K55;weap8=K56;weap9=K57;weap0=K48";
 		document.cookie = cookie;
 	}
 	// for each cookie we've defined

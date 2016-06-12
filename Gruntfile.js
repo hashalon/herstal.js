@@ -10,9 +10,9 @@ module.exports = function(grunt) {
                 enviroment : 'node',
                 useStrict : false,
                 exports : [
-                    'WORLD',
-                    'Character',
-                    'Player',
+                    "WORLD",
+                    "Player",
+                    "Character",
                 ],
                 src : [
                     // first add those files
@@ -34,16 +34,10 @@ module.exports = function(grunt) {
                     // first add those files
                     "src/server/Init.js",
                     // then everything else
-                    //"src/server/**/*.js",
+                    "src/server/**/*.js",
                 ],
                 //src  : "src/server/**/*.js",
                 dest : "build/es6/herstal.server.js",
-                params : {
-                    "serverName" : "name",
-                    "maxPlayers" : "nbPlayers",
-                    "mapNames"   : "maps",
-                    "gameModes"  : "modes",
-                },
             },
             dev_client : {
                 separator : '\n\n',
@@ -56,7 +50,7 @@ module.exports = function(grunt) {
                     // first add those files
                     "src/client/Init.js",
                     // then everything else
-                    //"src/client/**/*.js",
+                    "src/client/**/*.js",
                 ],
                 //src  : "src/client/**/*.js",
                 dest : "build/es6/herstal.client.js",
@@ -78,7 +72,6 @@ module.exports = function(grunt) {
             dist : {
                 files : {
                     "build/min/herstal.shared.min.js" : "build/es5/herstal.shared.js",
-                    "build/min/herstal.server.min.js" : "build/es5/herstal.server.js",
                     "build/min/herstal.client.min.js" : "build/es5/herstal.client.js",
                 }
             }
@@ -89,9 +82,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-6to5');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     //grunt.loadNpmTasks('grunt-contrib-nodeunit');
-    //grunt.registerTask('default', ['encase', '6to5', 'uglify']);
+    grunt.registerTask('default', ['encase', '6to5', 'uglify']);
     //grunt.registerTask('test'   , ['nodeunit']);
-    grunt.registerTask('extractjs', function(){
-
-    });
 };

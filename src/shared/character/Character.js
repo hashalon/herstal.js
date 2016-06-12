@@ -35,8 +35,8 @@ function Character(player, position, orientation, options){
 	var body_shape = new CANNON.Box({ x: bw, y: bh, z: bw });
 
 	// we recover the filter based on the team of the player
-	this.team = typeof(options.team) === 'number' ? options.team : Character.TEAM.none;
-	var filter = Character.FILTER[team];
+	var team = options.team || "none";
+	var filter = Character.FILTERS[team];
 	if(!filter) filter = {group : 0b111, mask : 0b111}; // NO TEAM
 
 	// we create the body collider of the character
@@ -123,25 +123,18 @@ WORLD.addContactMaterial(new CANNON.ContactMaterial(Character.MATERIAL, WORLD.de
 	contactEquationRelaxation:   3
 }));
 
+/* bit definition:
+	4 : TEAM BETA
+	3 : TEAM ALPHA
+	2 : NO TEAM
+	1 : CHARACTER
+	0 : WORLD
+*/
 // Team definition
-Character.TEAM = {
-	id: {
-		none:  0,
-		alpha: 1,
-		beta:  2
-	},
-	/* bit definition:
-		4 : TEAM BETA
-		3 : TEAM ALPHA
-		2 : NO TEAM
-		1 : CHARACTER
-		0 : WORLD
-	*/
-	filters: [
-		{ group: 0b00111, mask: 0b00111 }, // NO TEAM
-		{ group: 0b01011, mask: 0b01011 }, // TEAM ALPHA
-		{ group: 0b10011, mask: 0b10011 }, // TEAM BETA
-	]
+Character.FILTERS = {
+	none  : { group: 0b00111, mask: 0b00111 }, // NO TEAM
+	alpha : { group: 0b01011, mask: 0b01011 }, // TEAM ALPHA
+	beta  : { group: 0b10011, mask: 0b10011 }, // TEAM BETA
 };
 
 /* UPDATE FUNCTIONS */

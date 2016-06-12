@@ -1,14 +1,30 @@
 "use strict";
 
 (function (undefined) {
+	// parameters for the app
+	var options = options || {};
+
 	// we need modules some other modules
-	var CANNON, module;
-	if (typeof module === "undefined") {
-		module = {};
-	}
-	if (typeof CANNON === "undefined") {
-		throw new Error("Herstal require CANNON.js to work");
-	}
+	var module, window;
+	// we use a hack to be able to use the library in both node an the browser
+	// if window is not set, we will have an error
+	if (!window) window = {};
+	// if module is not set, we will have an error
+	if (!module) module = Object.defineProperties({}, {
+		exports: {
+			get: function () {
+				return window.HERSTAL;
+			},
+			set: function (exports) {
+				window.HERSTAL = exports;
+			},
+			enumerable: true,
+			configurable: true
+		}
+	});
+
+	var CANNON = require("../../lib/cannon.min.js");
+	if (!CANNON) throw new Error("Herstal.shared needs CANNON.js to work");
 
 	var WORLD = new CANNON.World();
 	WORLD.gravity.set(0, -100, 0);
@@ -52,8 +68,8 @@
 		var body_shape = new CANNON.Box({ x: bw, y: bh, z: bw });
 
 		// we recover the filter based on the team of the player
-		this.team = typeof options.team === "number" ? options.team : Character.TEAM.none;
-		var filter = Character.FILTER[team];
+		var team = options.team || "none";
+		var filter = Character.FILTERS[team];
 		if (!filter) filter = { group: 7, mask: 7 }; // NO TEAM
 
 		// we create the body collider of the character
@@ -140,24 +156,18 @@
 		contactEquationRelaxation: 3
 	}));
 
+	/* bit definition:
+ 	4 : TEAM BETA
+ 	3 : TEAM ALPHA
+ 	2 : NO TEAM
+ 	1 : CHARACTER
+ 	0 : WORLD
+ */
 	// Team definition
-	Character.TEAM = {
-		id: {
-			none: 0,
-			alpha: 1,
-			beta: 2
-		},
-		/* bit definition:
-  	4 : TEAM BETA
-  	3 : TEAM ALPHA
-  	2 : NO TEAM
-  	1 : CHARACTER
-  	0 : WORLD
-  */
-		filters: [{ group: 7, mask: 7 }, // NO TEAM
-		{ group: 11, mask: 11 }, // TEAM ALPHA
-		{ group: 19, mask: 19 }]
-	};
+	Character.FILTERS = {
+		none: { group: 7, mask: 7 }, // NO TEAM
+		alpha: { group: 11, mask: 11 }, // TEAM ALPHA
+		beta: { group: 19, mask: 19 } };
 
 	/* UPDATE FUNCTIONS */
 
@@ -396,12 +406,17 @@
   * name of the player and its colors: primary, secondary and laser
   */
 
-	function Player(name, colors) {
-		this.id = Player.currentId++;
+	function Player(id, name, colors) {
+		this.id = id;
+		this.name = name;
+		this.colors = colors;
+		this.team = "none";
 	}
 	Player.prototype.constructor = Player;
 
-	Player.currentId = 0;
+	Player.prototype.createCharacter = function (position, orientation) {
+		this.character = new Character(this, position, orientation, { team: this.team });
+	};
 
 
 	// adds function for CANNON.js objects
@@ -422,7 +437,8 @@
 		return Math.acos(v1.dot(v2));
 	};
 
-	module.exports = { WORLD: WORLD, Character: Character, Player: Player };
+	module.exports = { WORLD: WORLD, Player: Player, Character: Character };
 })();
+// we link exports to the window variable
 // maximum angle for walking on slopes
 // TEAM BETA

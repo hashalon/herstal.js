@@ -5,16 +5,34 @@
 function Character(player, position, orientation, options){
 	options = options || {};
 
-	// shortcut for constants
-	var hw = Character.DIMENSIONS.head.width ,
-	    hh = Character.DIMENSIONS.head.height,
-	    bw = Character.DIMENSIONS.body.width ,
-	    bh = Character.DIMENSIONS.body.height;
+	// the world in which the character exists
+	this.world = null;
+	this.player = player;
+
+	// status of the character
+	this.health    = options.health    || Character.ATTRIBUTES.defaultHealth;
+	this.maxHealth = options.maxHealth || Character.ATTRIBUTES.maxHealth;
+	this.armor     = options.armor     || Character.ATTRIBUTES.defaultArmor;
+	this.maxArmor  = options.maxArmor  || Character.ATTRIBUTES.maxArmor;
+	this.isDead    = false;
+
+	// we recover the potentia custom dimensions of the character
+	var dim = this.dimensions = options.dimensions || Character.DIMENSIONS;
+	// we correct the dimensions if needed
+	dim.head_w = dim.head_w > 0 ? dim.head_w : Character.DIMENSIONS.head_w;
+	dim.head_h = dim.head_h > 0 ? dim.head_h : Character.DIMENSIONS.head_h;
+	dim.body_w = dim.body_w > 0 ? dim.body_w : Character.DIMENSIONS.body_w;
+	dim.body_h = dim.body_h > 0 ? dim.body_h : Character.DIMENSIONS.body_h;
+	dim.body_c = dim.body_c > 0 ? dim.body_c : Character.DIMENSIONS.body_c;
+	if(!dim.vertices)
+		dim.vertices = Character.DIMENSIONS.vertices;
+	else if(dim.vertices.length < 0)
+		dim.vertices = Character.DIMENSIONS.vertices;
 
 	// position of the new character
 	position = position || { x: 0, y: 0, z: 0 };
 	// the origin of the character will be placed at neck level
-	position.y += bh;
+	position.y += dim.body_h;
 
 	// the orientation of the head (not a quaternion)
 	this.orientation = orientation || { x: 0, y: 0 };
@@ -28,11 +46,11 @@ function Character(player, position, orientation, options){
 	this.platform = null; // only requiered for moving platforms
 
 	// relative position of the shapes of the character
-	var head_pos = { x: 0, z: 0, y:  0.5 * hh };
-	var body_pos = { x: 0, z: 0, y: -0.5 * bh };
+	var head_pos = { x: 0, z: 0, y:  0.5 * dim.head_h };
+	var body_pos = { x: 0, z: 0, y: -0.5 * dim.body_h };
 	// shapes of the character
-	var head_shape = new CANNON.Box({ x: hw, y: hh, z: hw });
-	var body_shape = new CANNON.Box({ x: bw, y: bh, z: bw });
+	var head_shape = new CANNON.Box({ x: dim.head_w, y: dim.head_h, z: dim.head_w });
+	var body_shape = new CANNON.Box({ x: dim.body_w, y: dim.body_h, z: dim.body_w });
 
 	// we recover the filter based on the team of the player
 	var team = options.team || "none";
@@ -55,95 +73,75 @@ function Character(player, position, orientation, options){
 	// we add more information to the bodies
 	this.body.character = this; // a reference to the character
 	head_shape.isHead   = true; // this shape is the head
-
-	// we add the body to the world
-	WORLD.addBody(this.body);
 }
+// we add the class to the module
+HERSTALshared.Character = Character;
 Character.prototype.constructor = Character;
 
-/* STATIC ATTRIBUTES */
-var fw = 0.8, fh = 1.8, fc = 1.0;
-var hw = 0.6, hh = 0.4;               // head dimensions
-var bw = fw , bh = fh-hh, bc = fc-hh; // body dim = full dim - head dim
+/* SETTER GETTER */
+/**
+ * to avoid overflood json files with names, we use short names:
+ * o : orientation
+ * p : position
+ * v : velocity
+ * g : isGrounded
+ * c : isCrounched
+ */
+/**
+ * set all of the position and movement of the character from the data object
+ */
+Character.prototype.setFromData = function( data ){
+	if(typeof data !== "object") return; // if data is empty, there is nothing to do
+	// we update the orientation of the character
+	this.setLook(data.o);
 
-// character dimensions
-Character.DIMENSIONS = {
-	head: {
-		width:  hw,
-		height: hh
-	},
-	body: {
-		width:     bw,
-		height:    bh,
-		crounched: bc
-	},
-	// vertices used for ground and ceiling detection
-	vertices: [
-		{ x:   0, z:   0 },
-		{ x:  bw, z:  bw },
-		{ x:  bw, z: -bw },
-		{ x: -bw, z:  bw },
-		{ x: -bw, z: -bw }
-	],
-	checkCollision: function( world, vertice, padding = 0.1 ){
-		// we create the starting and ending points of the rays
-		var from = new CANNON.Vec3( vertice.x, vertice.y, vertice.z );
-		var to   = from.vadd({y: padding});
-		var ray  = new CANNON.Ray( from, to );
-
-		// we check collision with the world
-		ray.intersectWorld(world, {
-			mode: Ray.CLOSEST,
-			skipBackfaces: true,
-			collisionFilterGroup: 0b1,
-			collisionFilterMask:  0b1
-		});
-		// we return the results rather than just hasHit
-		return ray.result;
+	// if the position is set
+	var pos = data.p;
+	if(typeof pos === "object"){
+		// if position is a vector 3
+		if( typeof pos.x === typeof pos.y === typeof pos.z === "number" ){
+			this.body.position.copy(pos);
+		}
 	}
+	// if the velocity is set
+	var vel = data.v;
+	if(typeof vel === "object"){
+		// if velocity is a vector 3
+		if( typeof vel.x === typeof vel.y === typeof vel.z === "number" ){
+			this.body.velocity.copy(vel);
+		}
+	}
+	// if grounded and crounched are set
+	if(data.g !== null) this.isGrounded  = data.g;
+	if(data.c !== null) this.isCrounched = data.c;
 };
-
-var speed = 20, jump = 30, crounch = 0.05;
-
-// attributes of the character
-Character.ATTRIBUTES = {
-	moveSpeed:        speed,     // movement speed standing up
-	crounchedSpeed:   speed*0.5, // movement speed crounched
-	jumpForce:        jump,      // jump force
-	jumpTimer:        10,        // time before registering jumps
-	crounchIncrement: crounch,   // time between standing and crounching
-	steepSlope:       50,        // maximum angle for walking on slopes
-};
-
-Character.MATERIAL = new CANNON.Material("character");
-WORLD.addContactMaterial(new CANNON.ContactMaterial(Character.MATERIAL, WORLD.defaultMaterial, {
-	friction:    0,
-	restitution: 0,
-	contactEquationStiffness:  1e8,
-	contactEquationRelaxation:   3
-}));
-
-/* bit definition:
-	4 : TEAM BETA
-	3 : TEAM ALPHA
-	2 : NO TEAM
-	1 : CHARACTER
-	0 : WORLD
-*/
-// Team definition
-Character.FILTERS = {
-	none  : { group: 0b00111, mask: 0b00111 }, // NO TEAM
-	alpha : { group: 0b01011, mask: 0b01011 }, // TEAM ALPHA
-	beta  : { group: 0b10011, mask: 0b10011 }, // TEAM BETA
+/**
+ * read all of the position and movement of the character and create a object out of them
+ */
+Character.prototype.getData = function(){
+	return {
+		o : this.orientation,
+		p : {
+			x : this.body.position.x,
+			y : this.body.position.y,
+			z : this.body.position.z,
+		},
+		v : {
+			x : this.body.velocity.x,
+			y : this.body.velocity.y,
+			z : this.body.velocity.z,
+		},
+		g  : this.isGrounded,
+		c : this.isCrounched,
+	};
 };
 
 /* UPDATE FUNCTIONS */
-
 /**
  * Allow the character to look around
  * calculation based on mouse delta is performed client side
  */
-Character.prototype.updateLook = function( orientation ){
+Character.prototype.setLook = function( orientation ){
 	// if orientation is set
 	if(orientation){
 		var PI2 = Math.PI*2, hPI = Math.PI*0.5;
@@ -225,15 +223,15 @@ Character.prototype.updateGround = function(){
 	// we reset the state of the character
 	this.isGrounded = false;
 	// we try each vertices we have defined for characters
-	for( var i=0; i<Character.DIMENSIONS.vertices.length; ++i ){
+	for( var i=0; i<this.dimensions.vertices.length; ++i ){
 
 		// for each vertice, we move it from local to global coords
-		var vert = this.body.vadd( Character.DIMENSIONS.vertices[i] );
+		var vert = this.body.vadd( this.dimensions.vertices[i] );
 		// we put the vertice at the base of the body shape
 		vert.y -= this.body.shapes[0].halfExtents.y * 2; // shape 0 is body
 
 		// we recover the result of the contact with the ground
-		var result = Character.DIMENSIONS.checkCollision(this.body.world, vert, -0.1);
+		var result = Character.checkCollision(this.body.world, vert, -0.1);
 		if(result.hasHit){
 
 			// the angle between the surface normal and the vector up
@@ -294,22 +292,19 @@ Character.prototype.updatePosition = function(){
  * relative to the platform
  */
 Character.prototype.updatePlatform = function(){
-	var p = this.platform;
-	if(p){ // if the platform is not null
+	if(this.platform){ // if the platform is not null
 		// position of the platform
-		p.globalPos = this.body.position.clone();
-		p.localPos  = p.body.pointToLocalFrame(p.globalPos);
+		this.platform.globalPos = this.body.position.clone();
+		this.platform.localPos  = this.platform.body.pointToLocalFrame(this.platform.globalPos);
 		// orientation of the platform
-		p.globalRot = this.body.quaternion.clone();
-		p.localRot  = p.body.quaternion.inverse().mult(p.globalRot);
+		this.platform.globalRot = this.body.quaternion.clone();
+		this.platform.localRot  = this.platform.body.quaternion.inverse().mult(this.platform.globalRot);
 	}
 };
 /**
  * Function to manage character height and crounching
  */
 Character.prototype.updateCrounch = function(crounch){
-	var dim = Character.DIMENSIONS;
-
 	var canGetUp = true;
 	if(crounch){
 		canGetUp = false;
@@ -317,15 +312,15 @@ Character.prototype.updateCrounch = function(crounch){
 	}else if(this.isCrounched){
 		// we try each vertices we have defined for characters
 		// as long as canGetUp is not false
-		for( var i=0; i<dim.vertices.length && canGetUp; ++i ){
+		for( var i=0; i<this.dimensions.vertices.length && canGetUp; ++i ){
 
 			// for each vertice, we move it from local to global coords
-			var vert = this.body.vadd( dim.vertices[i] );
+			var vert = this.body.vadd( this.dimensions.vertices[i] );
 			// we put the vertice at the top of the head shape
-			vert.y += dim.head.height;
+			vert.y += this.dimensions.head_h;
 
 			// we recover the result of the contact with the ground
-			var result = dim.checkCollision(this.body.world, vert, 0.1);
+			var result = Character.checkCollision(this.body.world, vert, 0.1);
 			if(result.hasHit) canGetUp = false;
 		}
 	}
@@ -333,40 +328,147 @@ Character.prototype.updateCrounch = function(crounch){
 	// we recover the shape and the offset
 	var shape  = this.body.shapes[0];
 	var offset = this.body.shapeOffsets[0];
-	var inc = character.ATTRIBUTES.crounchIncrement;
+	var inc = Character.ATTRIBUTES.crounchIncrement;
 	var h;
 	// if the character can stand up
 	if(canGetUp){
 		// as long as we are not fully standing up
-		if( shape.halfExtents.y*2 < dim.body.height ){
+		if( shape.halfExtents.y*2 < this.dimensions.body_h ){
 			// we increase the size of the shape
 			shape.halfExtents.y += inc*2;
 			// we bring the shape closer to the the origin
 			offset.y -= inc;
 
 			// if we have a shape bigger than expected
-			if( shape.halfExtents.y*2 > dim.body.height ){
-				h = dim.body.height * 0.5;
+			if( shape.halfExtents.y*2 >= this.dimensions.body_h ){
+				h = this.dimensions.body_height * 0.5;
 				// we cap the values
 				shape.halfExtents.y = h;
 				offset.y = -h;
+				// the character is no longer crounched
+				this.isCrounched = false;
 			}
 		}
 	}else{ // cannot stand up
 		// as long as we are not fully crounched
-		if( shape.halfExtents.y*2 > dim.body.crounched ){
+		if( shape.halfExtents.y*2 > this.dimensions.body_c ){
 			// we decrease the size of the shape
 			shape.halfExtents.y -= inc*2;
 			// we put the shape farther from the origin
 			offset.y += inc;
 
 			// if we have a shape smaller than expected
-			if( shape.halfExtents.y*2 < dim.body.crounched ){
-				h = dim.body.crounched * 0.5;
+			if( shape.halfExtents.y*2 < this.dimensions.body_c ){
+				h = this.dimensions.body_c * 0.5;
 				// we cap the values
 				shape.halfExtents.y = h;
 				offset.y = -h;
 			}
 		}
 	}
+};
+
+Character.prototype.getDamage = function(damage){
+	// if the character as some armor
+	if( this.armor > 0 ){
+		var armorDamage = damage * Character.ATTRIBUTES.armorProtection;
+		damage     -= armorDamage; // we reduce the overall damage
+		this.armor -= armorDamage; // we apply damage to the armor
+		// if there was more damage than expected
+		if(this.armor < 0){
+			// we apply the difference
+			damage -= this.armor;
+			this.armor = 0;
+		}
+	}
+	this.health -= damage;
+	// if health reach 0, the character is dead
+	if(this.health <= 0) this.isDead = true;
+};
+
+Character.prototype.getHealth = function(health){
+	this.health += health;
+	// if health is higher than max, we cap the value
+	if(this.health > this.maxHealth)
+		this.health = this.maxHealth;
+};
+
+Character.prototype.getArmor = function(armor){
+	this.armor += armor;
+	// if health is higher than max, we cap the value
+	if(this.armor > this.maxArmor)
+		this.armor = this.maxArmor;
+};
+
+Character.prototype.killed = function(callback){
+
+	callback();
+};
+
+/* STATIC ATTRIBUTES */
+var fw = 0.8, fh = 1.8, fc = 1.0;
+var hw = 0.6, hh = 0.4;               // head dimensions
+var bw = fw , bh = fh-hh, bc = fc-hh; // body dim = full dim - head dim
+
+// character dimensions
+Character.DIMENSIONS = {
+	head_w : hw,
+	head_h : hh,
+	body_w : bw,
+	body_h : bh,
+	body_c : bc,
+	// vertices used for ground and ceiling detection
+	vertices: [
+		{ x:   0, z:   0 },
+		{ x:  bw, z:  bw },
+		{ x:  bw, z: -bw },
+		{ x: -bw, z:  bw },
+		{ x: -bw, z: -bw }
+	],
+};
+
+Character.checkCollision = function( world, vertice, padding = 0.1 ){
+	// we create the starting and ending points of the rays
+	var from = new CANNON.Vec3( vertice.x, vertice.y, vertice.z );
+	var to   = from.vadd({y: padding});
+	var ray  = new CANNON.Ray( from, to );
+
+	// we check collision with the world
+	ray.intersectWorld(world, {
+		mode: Ray.CLOSEST,
+		skipBackfaces: true,
+		collisionFilterGroup: 0b1,
+		collisionFilterMask:  0b1
+	});
+	// we return the results rather than just hasHit
+	return ray.result;
+};
+
+// attributes of the character
+Character.ATTRIBUTES = {
+	defaultHealth:    100, // health of the character on spawn
+	maxHealth:        100, // maximum health for the character
+	defaultArmor:     0,   // armor of the character on spawn
+	maxArmor:         100, // maximum armor for the character
+	armorProtection:  2/3, // number of hit taken by the armor
+	moveSpeed:        20,  // movement speed standing up
+	crounchedSpeed:   10,  // movement speed crounched
+	jumpForce:        30,  // jump force
+	jumpTimer:        10,  // time before registering jumps
+	crounchIncrement: 0.05,// time between standing and crounching
+	steepSlope:       50,  // maximum angle for walking on slopes
+};
+
+/* bit definition:
+	4 : TEAM BETA
+	3 : TEAM ALPHA
+	2 : NO TEAM
+	1 : CHARACTER
+	0 : WORLD
+*/
+// Team definition
+Character.FILTERS = {
+	none  : { group: 0b00111, mask: 0b00111 }, // NO TEAM
+	alpha : { group: 0b01011, mask: 0b01011 }, // TEAM ALPHA
+	beta  : { group: 0b10011, mask: 0b10011 }, // TEAM BETA
 };

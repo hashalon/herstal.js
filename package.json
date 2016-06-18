@@ -36,6 +36,7 @@
     "grunt-traceur": "^0.5.5",
     "jshint": "latest",
     "nodeunit": "latest",
+    "socketio": "^1.0.0",
     "traceur": "0.0.111",
     "uglify-js": "latest"
   },

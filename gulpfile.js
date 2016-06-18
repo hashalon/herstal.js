@@ -12,6 +12,7 @@ gulp.task('build-shared', function() {
 	append  = "\n})();",
 	srcs = [
 		"src/shared/Init.js",
+		"src/shared/Util.js",
 		"src/shared/**/*.js",
 	],
 	dist = "build",

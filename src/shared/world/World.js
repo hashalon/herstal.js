@@ -71,3 +71,5 @@ World.prototype.removeCharacter = function( character ){
 		}
 	}
 };
+
+World.FILTER = { group: 0b00111, mask: 0b00111 };

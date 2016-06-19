@@ -1,6 +1,5 @@
-var CooMan; // CookieManager
-if(!CooMan) CooMan = {};
-CooMan.options = {};
+var CooMan = CooMan || {}; // CookieManager
+CooMan.options = CooMan.options || {};
 
 // This script allow to read and write cookies to store user preferences.
 CooMan.reset = function(){
@@ -28,34 +27,34 @@ CooMan.reset = function(){
 	O.invertX = false;
 	O.invertY = false;
 	// movements
-	O.moveF = { value: 87 }; // W
-	O.moveB = { value: 83 }; // S
-	O.moveL = { value: 65 }; // A
-	O.moveR = { value: 68 }; // D
+	O.moveF = { btn: 87 }; // W
+	O.moveB = { btn: 83 }; // S
+	O.moveL = { btn: 65 }; // A
+	O.moveR = { btn: 68 }; // D
 	// jump & crounch
-	O.jump    = { value: 32 }; // SPACE
-	O.crounch = { value: 16 }; // SHIFT
+	O.jump    = { btn: 32 }; // SPACE
+	O.crounch = { btn: 16 }; // SHIFT
 	// fire
-	O.fire1 = { value: 0, isMouse: true }; // Mouse Button Left
-	O.fire2 = { value: 2, isMouse: true }; // Mouse Button Right
+	O.fire1 = { btn: 0, isMouse: true }; // Mouse Button Left
+	O.fire2 = { btn: 2, isMouse: true }; // Mouse Button Right
 	// interact
-	O.use    = { value: 69 }; // E
-	O.reload = { value: 82 }; // R
-	O.melee  = { value: 81 }; // Q
-	O.zoom   = { value:  1, isMouse: true }; // Mouse Wheel Press
+	O.use    = { btn: 69 }; // E
+	O.reload = { btn: 82 }; // R
+	O.melee  = { btn: 81 }; // Q
+	O.zoom   = { btn:  1, isMouse: true }; // Mouse Wheel Press
 	// weapon selection
-	O.prevWeap = { value: -1, isMouse: true }; // Mouse Wheel Up
-	O.nextWeap = { value: -2, isMouse: true }; // Mouse Wheel Down
-	O.weap1 = { value: 49 }; // 1
-	O.weap2 = { value: 50 }; // 2
-	O.weap3 = { value: 51 }; // 3
-	O.weap4 = { value: 52 }; // 4
-	O.weap5 = { value: 53 }; // 5
-	O.weap6 = { value: 54 }; // 6
-	O.weap7 = { value: 55 }; // 7
-	O.weap8 = { value: 56 }; // 8
-	O.weap9 = { value: 57 }; // 9
-	O.weap0 = { value: 48 }; // 0
+	O.prevWeap = { btn: -1, isMouse: true }; // Mouse Wheel Up
+	O.nextWeap = { btn: -2, isMouse: true }; // Mouse Wheel Down
+	O.weap1 = { btn: 49 }; // 1
+	O.weap2 = { btn: 50 }; // 2
+	O.weap3 = { btn: 51 }; // 3
+	O.weap4 = { btn: 52 }; // 4
+	O.weap5 = { btn: 53 }; // 5
+	O.weap6 = { btn: 54 }; // 6
+	O.weap7 = { btn: 55 }; // 7
+	O.weap8 = { btn: 56 }; // 8
+	O.weap9 = { btn: 57 }; // 9
+	O.weap0 = { btn: 48 }; // 0
 };
 CooMan.write = function(){
 	var cookie = "";
@@ -86,9 +85,9 @@ CooMan.write = function(){
 };
 CooMan.getLabelForKey = function(key){
 	if( key ){ // if key is not null
-		if( key.value != null ){ // if the value of key is not null
+		if( key.btn != null ){ // if the value of key is not null
 			if( key.isMouse ){ // if it's a mouse button
-				switch(key.value){
+				switch(key.btn){
 					case  0 : return "Left Mouse";
 					case  1 : return "Mouse Wheel";
 					case  2 : return "Right Mouse";
@@ -99,7 +98,7 @@ CooMan.getLabelForKey = function(key){
 					case -2 : return "Wheel Down";
 				}
 			}else{ // if it's a keyboard key
-				switch(key.value){
+				switch(key.btn){
 					case   8 : return "BACKSPACE";
 					case   9 : return "TAB";
 					case  13 : return "RETURN";

@@ -59,17 +59,17 @@ var eventHandler = function(e){
 			var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.deltaY)));
 			// if delta is not null or zero
 			// -1 is up, -2 is down
-			if(delta) input = {value: (delta > 0) ? -1 : -2, isMouse: true};
+			if(delta) input = {btn: (delta > 0) ? -1 : -2, isMouse: true};
 
 		}else if(e.button != null){ // if it's a mouse button
-			input = {value: e.button, isMouse: true};
+			input = {btn: e.button, isMouse: true};
 
 		}else if(e.which || e.keyCode){ // if it's a keyboard key
 			var keyCode = (typeof e.which == "number") ? e.which : e.keyCode;
 			switch(keyCode){
 				case 27 : end(); // if ESC, we cancel
 				case 46 : break; // if DEL, input will be NONE
-				default : input = {value: keyCode};
+				default : input = {btn: keyCode};
 			}
 		}
 		CooMan.options[currentInput.id] = input; // we update the preferences

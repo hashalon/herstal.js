@@ -8,6 +8,13 @@ function Character(player, position, orientation, options){
 	// the world in which the character exists
 	this.world = null;
 	this.player = player;
+	this.inputs = null;
+	// weapons of the character (max should be 10)
+	this.weapons = []; // the array needs atleast one weapon
+	this.currentWeapon = 0;
+
+	// characterModel used in HERSTALclient
+	this.characterModel = null;
 
 	// status of the character
 	this.health    = options.health    || Character.ATTRIBUTES.defaultHealth;
@@ -82,6 +89,40 @@ Character.prototype.constructor = Character;
 /**
  * to avoid overflood json files with names, we use short names:
  * o : orientation
+ * m : movement
+ * i : array of bits :
+ ** [0] jump
+ ** [1] crounch
+ ** [2] fire1
+ ** [3] fire2
+ ** [4] use
+ ** [5] reload
+ ** [6] melee
+ ** [7] zoom
+ * w : weapon slot
+ */
+/**
+ * store all of the inputs set over JSON
+ */
+Character.prototype.setFromInput = function( inputs ){
+	if(typeof inputs !== "object") return; // if inputs is empty, there is nothing to do
+	this.inputs = {};
+
+	this.inputs.orientation = inputs.o;
+	this.inputs.movement    = inputs.m;
+	this.inputs.jump    = !!(inputs.i &        0b1);
+	this.inputs.crounch = !!(inputs.i &       0b10);
+	this.inputs.fire1   = !!(inputs.i &      0b100);
+	this.inputs.fire2   = !!(inputs.i &     0b1000);
+	this.inputs.use     = !!(inputs.i &    0b10000);
+	this.inputs.reload  = !!(inputs.i &   0b100000);
+	this.inputs.melee   = !!(inputs.i &  0b1000000);
+	this.inputs.zoom    = !!(inputs.i & 0b10000000);
+	this.inputs.weapon  = inputs.w;
+};
+/**
+ * to avoid overflood json files with names, we use short names:
+ * o : orientation
  * p : position
  * v : velocity
  * g : isGrounded
@@ -96,19 +137,17 @@ Character.prototype.setFromData = function( data ){
 	this.setLook(data.o);
 
 	// if the position is set
-	var pos = data.p;
-	if(typeof pos === "object"){
+	if(typeof data.p === "object"){
 		// if position is a vector 3
-		if( typeof pos.x === typeof pos.y === typeof pos.z === "number" ){
-			this.body.position.copy(pos);
+		if( typeof data.p.x === typeof data.p.y === typeof data.p.z === "number" ){
+			this.body.position.copy(data.p);
 		}
 	}
 	// if the velocity is set
-	var vel = data.v;
-	if(typeof vel === "object"){
+	if(typeof data.v === "object"){
 		// if velocity is a vector 3
-		if( typeof vel.x === typeof vel.y === typeof vel.z === "number" ){
-			this.body.velocity.copy(vel);
+		if( typeof data.v.x === typeof data.v.y === typeof data.v.z === "number" ){
+			this.body.velocity.copy(data.v);
 		}
 	}
 	// if grounded and crounched are set
@@ -137,6 +176,25 @@ Character.prototype.getData = function(){
 };
 
 /* UPDATE FUNCTIONS */
+/**
+ * Global update function of the character
+ */
+Character.prototype.updateAll = function(){
+	var inputs = this.inputs || {};
+
+	// where the character is looking at ?
+	this.setLook(inputs.orientation);
+	// is the character on the ground ?
+	this.updateGround();
+	// in which direction the character is moving, is he jumping ?
+	this.updateMove(inputs.movement, inputs.jump);
+	// is the character crounching ?
+	this.updateCrounch(inputs.crounch);
+	// if the character is on a platform, we should record it's position
+	this.updatePlatform();
+	// we update the weapon the character is holding
+	this.setWeapon(inputs.weapon);
+};
 /**
  * Allow the character to look around
  * calculation based on mouse delta is performed client side
@@ -266,8 +324,9 @@ Character.prototype.updateGround = function(){
 };
 /**
  * Update the position of the character based on the position of the platform he is standing on
+ * /!\ Should be called after physic engine calculations /!\
  */
-Character.prototype.updatePosition = function(){
+Character.prototype.updatePlatformPosition = function(){
 	var p = this.platform;
 	if(p){ // if the character is standing on a platform
 
@@ -366,6 +425,39 @@ Character.prototype.updateCrounch = function(crounch){
 			}
 		}
 	}
+};
+
+Character.prototype.setWeapon = function( index ){
+	// if the weapons array is empty or we haven't specified a weapon to switch to
+	if(this.weapons.length === 0 && index === null) return; //there is nothing to do
+	// what will be the new weapon of the player ?
+	var newWeap = this.currentWeapon;
+	// if index is positive
+	if( -1 < index && index < this.weapons.length ){
+		// if a weapon exists at the index position
+		if( this.weapons[index] !== null ){
+			// we set the weapon
+			newWeap = index;
+		}
+	}else{
+		// if index==-1 : previous weapon, if index==-2 : next weapon
+		var incre = index == -1 ? -1 : +1;
+		// we loop weapons.length times at max to avoid endless loop
+		for(var i=0, stop=false; i<this.weapons.length || stop; ++i){
+			// we increament or decreament the value
+			newWeap += incre;
+			// we cap the value
+			if(newWeap >= this.weapons.length) newWeap = 0;
+			else if(newWeap < 0) newWeap = this.weapons.length -1;
+			// if we found a weapon which is not null, we stop the loop
+			if(this.weapons[newWeap] !== null) stop = true;
+		}
+	}
+
+	// we call the necessary functions to update the display in HERSTALclient
+
+	// we can store the new weapon as the current weapon now
+	this.currentWeapon = newWeap;
 };
 
 Character.prototype.getDamage = function(damage){

@@ -1,3 +1,8 @@
+/*
+	to gulp enter the command :
+	gulp
+*/
+
 var gulp   = require('gulp'),
 	concat = require('gulp-concat'),
 	rename = require('gulp-rename'),
@@ -32,7 +37,7 @@ gulp.task('build-shared', function() {
 	var min_file = file.pipe(rename(min))
 		.pipe(srcmap.init())
 		.pipe(uglify())
-		.pipe(srcmap.write("./"))
+		.pipe(srcmap.write('./'))
 		.pipe(gulp.dest(dist));
 });
 
@@ -83,9 +88,32 @@ gulp.task('build-client', function() {
 	var min_file = file.pipe(rename(min))
 		.pipe(srcmap.init())
 		.pipe(uglify())
-		.pipe(srcmap.write("./"))
+		.pipe(srcmap.write('./'))
 		.pipe(gulp.dest(dist));
 
 });
 
-gulp.task('default', ['build-shared', 'build-server', 'build-client']);
+gulp.task('min-cooman', function(){
+	var
+	srcs = [
+		"gui/preferences/cookieReader.js",
+		"gui/preferences/cookieManager.js",
+		"gui/preferences/userPreferences.js",
+	],
+	min = [
+		"cookieReader.min.js",
+		"cookieManager.min.js",
+		"userPreferences.min.js",
+	],
+	dist = "gui/preferences";
+	for( var i=0; i<srcs.length; ++i ){
+		var file = gulp.src(srcs[i])
+			.pipe(rename(min[i]))
+			.pipe(srcmap.init())
+			.pipe(uglify())
+			.pipe(srcmap.write('./'))
+			.pipe(gulp.dest(dist));
+	}
+});
+
+gulp.task('default', ['build-shared', 'build-server', 'build-client', 'min-cooman']);

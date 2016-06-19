@@ -7,8 +7,8 @@
 
 # Node Modules
 node_modules/*
-build/*
-lib/*
+#build/*
+#lib/*
 
 # File system
 .DS_Store

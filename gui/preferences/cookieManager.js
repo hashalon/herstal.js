@@ -93,7 +93,8 @@ CooMan.getLabelForKey = function(key){
 					case  2 : return "Right Mouse";
 					case  3 : return "Mouse Previous";
 					case  4 : return "Mouse Next";
-					// we use negative values because they are not used by any real button
+					// we use negative values because
+					// they are not used by any real button
 					case -1 : return "Wheel Up";
 					case -2 : return "Wheel Down";
 				}

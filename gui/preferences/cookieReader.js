@@ -37,7 +37,7 @@ CooMan.read = function(){
 				case "N": value = parseFloat(data); break; // number
 				case "S": value = data; break; // string
 				case "K": value = { btn: parseInt(data) }; break; // key input
-				case "M": value = { btn: parseInt(data), isMouse: true }; break; // mouse input
+				case "M": value = { btn: parseInt(data), isMouse: true }; break;
 			}
 			// we set the option value if option is not null
 			CooMan.options[option] = value;

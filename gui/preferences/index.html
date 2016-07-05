@@ -13,7 +13,7 @@
 		-->
 		<script src="../../lib/jscolor.min.js"></script>
 		<style>
-			.key-label{
+			.hrs-label{
 				text-align: right;
 				vertical-align: middle;
 			}
@@ -39,6 +39,7 @@
 	<body>
 		<div class="container" >
 			<h1>Options</h1>
+			<input class="btn btn-success" onclick="resetPreferences()" type="button" name="reset" value="Reset Preferences" />
 		</div>
 		<div class="container" >
 			<div class="col-lg-6" >
@@ -47,43 +48,43 @@
 					<div class="card-block" >
 						<table class="table table-stripped">
 							<tr id="name" >
-								<td class="key-label" >User Name</td>
-								<td><input class="key-input form-control full-w" name="name" placeholder="Name" ></td>
+								<td class="hrs-label" >User Name</td>
+								<td><input class="hrs-input form-control full-w" name="name" placeholder="Name" ></td>
 							</tr>
 							<tr id="model" >
-								<td class="key-label" >User Model</td>
+								<td class="hrs-label" >User Model</td>
 								<td>
-									<select class="key-input form-control full-w" name="model" >
-										<option value="0" >Default  </option>
-										<option value="1" >Monster  </option>
-										<option value="2" >Robot    </option>
-										<option value="3" >Skeleton </option>
+									<select class="hrs-input form-control full-w" name="model" >
+										<option value= "default">Default </option>
+										<option value= "monster">Monster </option>
+										<option value=   "robot">Robot   </option>
+										<option value="skeleton">Skeleton</option>
 									</select>
 								</td>
 							</tr>
 							<tr id="colorRelative" >
-								<td class="key-label" >Team Color Relative</td>
-								<td><input class="key-input" type="checkbox" name="colorRelative" /></td>
+								<td class="hrs-label" >Team Color Relative</td>
+								<td><input class="hrs-input" type="checkbox" name="colorRelative" /></td>
 							</tr>
 							<tr id="colorAlpha" >
-								<td class="key-label" >Color Alpha Team</td>
-								<td><input class="key-input jscolor btn btn-sm full-w" type="button" name="colorAlpha" ></td>
+								<td class="hrs-label" >Color Alpha Team</td>
+								<td><input class="hrs-input jscolor {hash:true} btn btn-sm full-w" type="button" name="colorAlpha" ></td>
 							</tr>
 							<tr id="colorBeta" >
-								<td class="key-label" >Color Beta Team</td>
-								<td><input class="key-input jscolor btn btn-sm full-w" type="button" name="colorBeta" ></td>
+								<td class="hrs-label" >Color Beta Team</td>
+								<td><input class="hrs-input jscolor {hash:true} btn btn-sm full-w" type="button" name="colorBeta" ></td>
 							</tr>
 							<tr id="colorOwn1" >
-								<td class="key-label" >Primary Color</td>
-								<td><input class="key-input jscolor btn btn-sm full-w" type="button" name="colorOwn1" ></td>
+								<td class="hrs-label" >Primary Color</td>
+								<td><input class="hrs-input jscolor {hash:true} btn btn-sm full-w" type="button" name="colorOwn1" ></td>
 							</tr>
 							<tr id="colorOwn2" >
-								<td class="key-label" >Secondary Color</td>
-								<td><input class="key-input jscolor btn btn-sm full-w" type="button" name="colorOwn2" ></td>
+								<td class="hrs-label" >Secondary Color</td>
+								<td><input class="hrs-input jscolor {hash:true} btn btn-sm full-w" type="button" name="colorOwn2" ></td>
 							</tr>
 							<tr id="colorLaser" >
-								<td class="key-label" >Laser Color</td>
-								<td><input class="key-input jscolor btn btn-sm full-w" type="button" name="colorLaser" ></td>
+								<td class="hrs-label" >Laser Color</td>
+								<td><input class="hrs-input jscolor {hash:true} btn btn-sm full-w" type="button" name="colorLaser" ></td>
 							</tr>
 						</table>
 					</div>
@@ -98,28 +99,28 @@
 					<div class="card-block" >
 						<table class="table table-stripped">
 							<tr id="isFullscreen" >
-								<td class="key-label" >Fullscreen</td>
-								<td><input class="key-input" type="checkbox" name="isFullscreen" /></td>
+								<td class="hrs-label" >Fullscreen</td>
+								<td><input class="hrs-input" type="checkbox" name="isFullscreen" /></td>
 							</tr>
 							<tr id="displayX" >
-								<td class="key-label" >Display Width</td>
-								<td><input class="key-input form-control full-w" name="displayX" /></td>
+								<td class="hrs-label" >Display Width</td>
+								<td><input class="hrs-input form-control full-w" name="displayX" /></td>
 							</tr>
 							<tr id="displayY" >
-								<td class="key-label" >Display Height</td>
-								<td><input class="key-input form-control full-w" name="displayY" /></td>
+								<td class="hrs-label" >Display Height</td>
+								<td><input class="hrs-input form-control full-w" name="displayY" /></td>
 							</tr>
 							<tr id="volumeMaster" >
-								<td class="key-label" >Master Volume</td>
-								<td><input class="key-input full-w" type="range" min="0" max="100" name="volumeMaster" /></td>
+								<td class="hrs-label" >Master Volume</td>
+								<td><input class="hrs-input full-w" type="range" min="0" max="100" name="volumeMaster" /></td>
 							</tr>
 							<tr id="volumeEffect" >
-								<td class="key-label" >Volume Effects</td>
-								<td><input class="key-input full-w" type="range" min="0" max="100" name="volumeEffect" /></td>
+								<td class="hrs-label" >Volume Effects</td>
+								<td><input class="hrs-input full-w" type="range" min="0" max="100" name="volumeEffect" /></td>
 							</tr>
 							<tr id="volumeMusic" >
-								<td class="key-label" >Volume Musics</td>
-								<td><input class="key-input full-w" type="range" min="0" max="100" name="volumeMusic" /></td>
+								<td class="hrs-label" >Volume Musics</td>
+								<td><input class="hrs-input full-w" type="range" min="0" max="100" name="volumeMusic" /></td>
 							</tr>
 						</table>
 					</div>
@@ -147,116 +148,116 @@
 							<div class="col-lg-6" >
 								<table class="table table-stripped" >
 									<tr id="mouseS" >
-										<td class="key-label" >Sensibility</td>
-										<td><input class="key-input full-w" type="range" min="0" max="100" name="mouseS" /></td>
+										<td class="hrs-label" >Sensibility</td>
+										<td><input class="hrs-input full-w" type="range" min="0" max="100" name="mouseS" /></td>
 									</tr>
 									<tr id="invertX" >
-										<td class="key-label" >Invert Camera X-axis</td>
-										<td><input class="key-input" type="checkbox" name="invertX" /></td>
+										<td class="hrs-label" >Invert Camera X-axis</td>
+										<td><input class="hrs-input" type="checkbox" name="invertX" /></td>
 									</tr>
 									<tr id="invertY" >
-										<td class="key-label" >Invert Camera Y-axis</td>
-										<td><input class="key-input" type="checkbox" name="invertY" /></td>
+										<td class="hrs-label" >Invert Camera Y-axis</td>
+										<td><input class="hrs-input" type="checkbox" name="invertY" /></td>
 									</tr>
 									<tr id="moveF" >
-										<td class="key-label" >Move Forward</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="moveF" /></td>
+										<td class="hrs-label" >Move Forward</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="moveF" /></td>
 									</tr>
 									<tr id="moveB" >
-										<td class="key-label" >Move Backward</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="moveB" /></td>
+										<td class="hrs-label" >Move Backward</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="moveB" /></td>
 									</tr>
 									<tr id="moveL" >
-										<td class="key-label" >Strafe Left</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="moveL" /></td>
+										<td class="hrs-label" >Strafe Left</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="moveL" /></td>
 									</tr>
 									<tr id="moveR" >
-										<td class="key-label" >Strafe Right</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="moveR" /></td>
+										<td class="hrs-label" >Strafe Right</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="moveR" /></td>
 									</tr>
 									<tr id="jump" >
-										<td class="key-label" >Jump</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="jump" /></td>
+										<td class="hrs-label" >Jump</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="jump" /></td>
 									</tr>
 									<tr id="crounch" >
-										<td class="key-label" >Crounch</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="crounch" /></td>
+										<td class="hrs-label" >Crounch</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="crounch" /></td>
 									</tr>
 									<tr id="fire1" >
-										<td class="key-label" >Primary Fire</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="fire1" /></td>
+										<td class="hrs-label" >Primary Fire</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="fire1" /></td>
 									</tr>
 									<tr id="fire2" >
-										<td class="key-label" >Secondary Fire</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="fire2" /></td>
+										<td class="hrs-label" >Secondary Fire</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="fire2" /></td>
 									</tr>
 									<tr id="use" >
-										<td class="key-label" >Use</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="use" /></td>
+										<td class="hrs-label" >Use</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="use" /></td>
 									</tr>
 									<tr id="reload" >
-										<td class="key-label" >Reload</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="reload" /></td>
+										<td class="hrs-label" >Reload</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="reload" /></td>
 									</tr>
 									<tr id="melee" >
-										<td class="key-label" >Melee</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="melee" /></td>
+										<td class="hrs-label" >Melee</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="melee" /></td>
 									</tr>
 								</table>
 							</div>
 							<div class="col-lg-6" >
 								<table class="table table-stripped">
 									<tr id="zoom" >
-										<td class="key-label" >Zoom</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="zoom" /></td>
+										<td class="hrs-label" >Zoom</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="zoom" /></td>
 									</tr>
 									<tr id="prevWeap" >
-										<td class="key-label" >Previous Weapon</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="prevWeap" /></td>
+										<td class="hrs-label" >Previous Weapon</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="prevWeap" /></td>
 									</tr>
 									<tr id="nextWeap" >
-										<td class="key-label" >Next Weapon</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="nextWeap" /></td>
+										<td class="hrs-label" >Next Weapon</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="nextWeap" /></td>
 									</tr>
 									<tr id="weap1" >
-										<td class="key-label" >Switch to Weapon 1</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap1" /></td>
+										<td class="hrs-label" >Switch to Weapon 1</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap1" /></td>
 									</tr>
 									<tr id="weap2" >
-										<td class="key-label" >Switch to Weapon 2</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap2" /></td>
+										<td class="hrs-label" >Switch to Weapon 2</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap2" /></td>
 									</tr>
 									<tr id="weap3" >
-										<td class="key-label" >Switch to Weapon 3</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap3" /></td>
+										<td class="hrs-label" >Switch to Weapon 3</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap3" /></td>
 									</tr>
 									<tr id="weap4" >
-										<td class="key-label" >Switch to Weapon 4</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap4" /></td>
+										<td class="hrs-label" >Switch to Weapon 4</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap4" /></td>
 									</tr>
 									<tr id="weap5" >
-										<td class="key-label" >Switch to Weapon 5</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap5" /></td>
+										<td class="hrs-label" >Switch to Weapon 5</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap5" /></td>
 									</tr>
 									<tr id="weap6" >
-										<td class="key-label" >Switch to Weapon 6</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap6" /></td>
+										<td class="hrs-label" >Switch to Weapon 6</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap6" /></td>
 									</tr>
 									<tr id="weap7" >
-										<td class="key-label" >Switch to Weapon 7</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap7" /></td>
+										<td class="hrs-label" >Switch to Weapon 7</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap7" /></td>
 									</tr>
 									<tr id="weap8" >
-										<td class="key-label" >Switch to Weapon 8</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap8" /></td>
+										<td class="hrs-label" >Switch to Weapon 8</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap8" /></td>
 									</tr>
 									<tr id="weap9" >
-										<td class="key-label" >Switch to Weapon 9</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap9" /></td>
+										<td class="hrs-label" >Switch to Weapon 9</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap9" /></td>
 									</tr>
 									<tr id="weap0" >
-										<td class="key-label" >Switch to Weapon 0</td>
-										<td><input class="key-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap0" /></td>
+										<td class="hrs-label" >Switch to Weapon 0</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="weap0" /></td>
 									</tr>
 								</table>
 							</div>
@@ -275,9 +276,8 @@
 			<b>...</b><br/>
 			(ESC to cancel, DEL to clear)
 		</div>
-		<!-- Allow to manage user preferences through cookies -->
-		<script src="cookieManager.js"   ></script>
-		<script src="cookieReader.js"    ></script>
-		<script src="userPreferences.js" ></script>
+		<!-- Allow to manage user preferences through localStorage -->
+		<script src="../../src/preferences/reader.js"></script>
+		<script src="../../src/preferences/writer.js"></script>
 	</body>
 </html>

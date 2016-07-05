@@ -116,4 +116,6 @@ gulp.task('min-cooman', function(){
 	}
 });
 
-gulp.task('default', ['build-shared', 'build-server', 'build-client', 'min-cooman']);
+gulp.task('default', [
+	'build-shared', 'build-server', 'build-client', 'min-cooman'
+]);

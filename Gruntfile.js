@@ -62,18 +62,18 @@ module.exports = function(grunt) {
             },
             dist : {
                 files : {
-                    "build/es5/herstal.shared.js" : "build/es6/herstal.shared.js",
-                    "build/es5/herstal.server.js" : "build/es6/herstal.server.js",
-                    "build/es5/herstal.client.js" : "build/es6/herstal.client.js",
+                 "build/es5/herstal.shared.js" : "build/es6/herstal.shared.js",
+                 "build/es5/herstal.server.js" : "build/es6/herstal.server.js",
+                 "build/es5/herstal.client.js" : "build/es6/herstal.client.js",
                 }
             },
         },
         uglify : {
             dist : {
-                files : {
-                    "build/min/herstal.shared.min.js" : "build/es5/herstal.shared.js",
-                    "build/min/herstal.client.min.js" : "build/es5/herstal.client.js",
-                }
+             files : {
+              "build/min/herstal.shared.min.js" : "build/es5/herstal.shared.js",
+              "build/min/herstal.client.min.js" : "build/es5/herstal.client.js",
+             }
             }
         },
     });

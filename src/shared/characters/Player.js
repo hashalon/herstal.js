@@ -17,5 +17,7 @@
  Player.prototype.constructor = Player;
 
 Player.prototype.createCharacter = function(position, orientation){
-    this.character = new Character(this, position, orientation, {team: this.team});
+    this.character = new Character(this, position, orientation, {
+        team: this.team,
+    });
 };

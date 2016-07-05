@@ -40,7 +40,8 @@ var currentInput = null; // hold the input we are currently editing
 var onBtnPressed = function(btn){
 	change_input.setVisible(true);
 	currentInput = btn.parentElement.parentElement;
-	change_input.setText(currentInput.getElementsByClassName("key-label")[0].innerText);
+	change_input.setText(currentInput.
+		getElementsByClassName("key-label")[0].innerText);
 };
 var eventHandler = function(e){
 	// when we have assigned the key, we hide the message

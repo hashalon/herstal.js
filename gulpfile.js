@@ -18,6 +18,8 @@ gulp.task('build-shared', function() {
 	srcs = [
 		"src/shared/Init.js",
 		"src/shared/Util.js",
+		"src/shared/weapons/Weapon.js",
+		"src/shared/projectiles/Projectile.js",
 		"src/shared/**/*.js",
 	],
 	dist = "build",
@@ -117,5 +119,5 @@ gulp.task('min-cooman', function(){
 });
 
 gulp.task('default', [
-	'build-shared', 'build-server', 'build-client', 'min-cooman'
+	'build-shared', 'build-server', 'build-client'
 ]);

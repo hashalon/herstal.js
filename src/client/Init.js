@@ -1,9 +1,7 @@
-var HERSTALclient = {};
-
 if(!window || !document) throw new Error("This librairy is meant to be used in a web browser");
 
-window.HERSTALclient = HERSTALclient;
+var HERSTAL = window.HERSTAL;
 
-if(!io)     throw new Error('Herstal.client needs Socket.io to work');
-if(!CooMan) throw new Error('Herstal.client needs CookieManager to work');
-if(!HERSTALshared) throw new Error('Herstal.client needs Herstal.shared to work');
+if(!io)      throw new Error('herstal.client needs Socket.io to work');
+if(!HERSTAL) throw new Error('herstal.client needs herstal.preferences to work');
+if(!HERSTAL) throw new Error('herstal.client needs herstal.shared to work');

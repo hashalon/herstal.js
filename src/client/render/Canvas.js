@@ -1,6 +1,6 @@
 /**
- * Class to create a canvas, you should use only one for your web page
- */
+Class to create a canvas, you should use only one for your web page
+*/
 function Canvas( id, resX, resY, worldRender, armsRender ){
 
 	var div = document.body.getElementById(id);
@@ -15,8 +15,7 @@ function Canvas( id, resX, resY, worldRender, armsRender ){
 	this.armsRender  = armsRender;
 }
 // we add the class to the module
-HERSTALclient.Canvas = Canvas;
-Canvas.prototype.constructor = Canvas;
+Canvas.prototype.constructor = HERSTALclient.Canvas = Canvas;
 
 /**
  * render the scene 60 times per second from the camera

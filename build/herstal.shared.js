@@ -2,6 +2,12 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 (function () {
 	var HERSTALshared = {
 		__FPS: 60 // we fix the overall update to 60FPS
@@ -22,11 +28,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	// adds function for CANNON.js objects
 	/**
-  * Get the angle between this vector and the given vector.
-  * @method getAngle
-  * @param {Vec3} v Vector to get the angle from
-  * @return {number}
-  */
+ Get the angle between this vector and the given vector.
+ @method getAngle
+ @param {Vec3} v Vector to get the angle from
+ @return {Number} the angle between both vectors
+ */
 	CANNON.Vec3.prototype.getAngle = function (v) {
 		// we need two vectors
 		var v1 = this.clone();
@@ -38,8 +44,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		return Math.acos(v1.dot(v2));
 	};
 	/**
-  * Add element only if it's not already present in the list
-  */
+ Add element only if it's not already present in the list
+ */
 	Array.prototype.addElement = function (e) {
 		var index = this.indexOf(e);
 		// if the element is not already in the list
@@ -52,8 +58,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		return -1; // the element was already in the array
 	};
 	/**
-  * Remove an element from the list
-  */
+ Remove an element from the list
+ */
 	Array.prototype.removeElement = function (e) {
 		var index = this.indexOf(e);
 		// if the element is in the list
@@ -64,10 +70,109 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	/**
-  * Base class for all characters
-  */
+ Base class for all weapons
+ @class Weapon
+ */
 	/* CONSTRUCTOR */
-	function Character(player, position, orientation, options) {
+	/**
+ @constructor
+ @param {String}    name      The name of the weapon
+ @param {Character} character The character holding the weapon
+ @param
+ */
+	function Weapon(name, character, options) {
+		options = options || {};
+		// set name of the weapon and the character using it
+		this.name = name;
+		this.character = character;
+		this.damage = options.damage || 0;
+		// if maxAmmo is set and greater than 0
+		if (options.maxAmmo > 0) {
+			this.ammo = options.ammo;
+			this.maxAmmo = options.maxAmmo;
+		}
+		this.firerate = options.firerate > 0 ? options.firerate : 60;
+		this.acquired = !options.notAcquired;
+
+		// which group and mask should we use for this weapon ?
+		var team = options.team || "none";
+		// should we use self_ group and mask ?
+		var isSelf = this.character.player.current ? "self_" : "";
+		var filter = Weapon.FILTERS[isSelf + team] || Weapon.FILTERS.none;
+		var fg = options.filterGroup,
+		    fm = options.filterMask;
+		this.filterGroup = fg != null ? fg : filter.group;
+		this.filterMask = fm != null ? fm : filter.mask;
+	}
+	// we add the class to the module
+	Weapon.prototype.constructor = HERSTALshared.Weapon = Weapon;
+
+	Weapon.prototype.fire = function () {};
+
+	Weapon.prototype.secondary = function () {};
+
+	Weapon.FILTERS = {
+		none: { group: 1, mask: 1 },
+		alpha: { group: 1, mask: 1 },
+		beta: { group: 1, mask: 1 },
+		self_none: { group: 1, mask: 1 },
+		self_alpha: { group: 1, mask: 1 },
+		self_beta: { group: 1, mask: 1 }
+	};
+
+	/**
+ Base class for all characters
+ @class Character
+ */
+	/* CONSTRUCTOR */
+	/**
+ Create a character for the player at the given position
+ @constructor
+ @param {Player} player   Player which will be represented by the character
+ @param {Vec3}   position Foot position of the character
+ @param {Number} orientation Angle of the character at start
+ @param {Object} options Optional configurations
+ @param {Number} options.health
+ 	The health of the character
+ @param {Number} options.maxHealth
+ 	The maximum health of the character (if < 0, no capping)
+ @param {Number} options.armor
+ 	The armor of the character (if null, no armor)
+ @param {Number} options.maxArmor
+ 	The maximum armor of the character (if null, no capping)
+ @param {Number} options.moveSpeed
+ 	The speed of the character when walking
+ @param {Number} options.crounchSpeed
+ 	The speed of the character when crounched
+ @param {Number} options.jumpForce
+ 	The force applied to the character when jumping
+ @param {Number} options.fullWidth
+ 	The width of the character
+ @param {Number} options.fullHeight
+ 	The full height of the character when standing up
+ @param {Number} options.fullCrounched
+ 	The full height of the character when crounched
+ @param {Number} options.bodyWidth
+ 	The width of the character
+ @param {Number} options.bodyHeight
+ 	The height of the body part of the character when standing up
+ @param {Number} options.bodyCrounched
+ 	The height of the body part of the character when crounched
+ @param {Number} options.headWidth
+ 	The width of the head part of the character
+ @param {Number} options.headHeight
+ 	The height of the head part of the character
+ @param {String} options.team
+ 	The team identificator of the character ("none", "alpha", "beta")
+ 	Also set automatically filterGroup and filterMask
+ @param {Number} options.filterGroup
+ 	Override the character filterGroup
+ @param {Number} options.filterMask
+ 	Override the character filterMask
+ @param {Boolean} options.noHead
+ 	Tells if the head part should have the isHead property
+ */
+	function Character(player, position, orientation, weapons, options) {
 		options = options || {};
 
 		// the world in which the character exists
@@ -75,56 +180,88 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		this.player = player;
 		this.inputs = null;
 		// weapons of the character (max should be 10)
-		this.weapons = []; // the array needs atleast one weapon
+		// the array needs atleast one weapon
+		this.weapons = weapons || [new Weapon("none", this)];
 		this.currentWeapon = 0;
 
 		// characterModel used in HERSTALclient
 		this.characterModel = null;
 
 		// status of the character
-		this.health = options.health || Character.ATTRIBUTES.defaultHealth;
-		this.maxHealth = options.maxHealth || Character.ATTRIBUTES.maxHealth;
-		this.armor = options.armor || Character.ATTRIBUTES.defaultArmor;
-		this.maxArmor = options.maxArmor || Character.ATTRIBUTES.maxArmor;
+		this.health = options.health || 100;
+		this.maxHealth = options.maxHealth || 100;
+		this.armor = options.armor;
+		this.maxArmor = options.maxArmor;
 		this.isDead = false;
+		// movement of the character
+		this.moveSpeed = options.moveSpeed || 20;
+		this.crounchSpeed = options.crounchSpeed || 10;
+		this.jumpForce = options.jumpForce || 30;
 
-		// we recover the potentia custom dimensions of the character
-		var dim = this.dimensions = options.dimensions || Character.DIMENSIONS;
-		// we correct the dimensions if needed
-		dim.head_w = dim.head_w > 0 ? dim.head_w : Character.DIMENSIONS.head_w;
-		dim.head_h = dim.head_h > 0 ? dim.head_h : Character.DIMENSIONS.head_h;
-		dim.body_w = dim.body_w > 0 ? dim.body_w : Character.DIMENSIONS.body_w;
-		dim.body_h = dim.body_h > 0 ? dim.body_h : Character.DIMENSIONS.body_h;
-		dim.body_c = dim.body_c > 0 ? dim.body_c : Character.DIMENSIONS.body_c;
-		if (!dim.vertices) dim.vertices = Character.DIMENSIONS.vertices;else if (dim.vertices.length < 0) dim.vertices = Character.DIMENSIONS.vertices;
+		// we set the dimensions of the character
+		var hw = options.headWidth,
+		    hh = options.headHeight,
+		    fw = options.fullWidth,
+		    fh = options.fullHeight,
+		    bw = options.bodyWitdh,
+		    bh = options.bodyHeight,
+		    fc = options.fullCrounched,
+		    bc = options.bodyCrounched;
+		// if no dimensions are set, we use the default values
+		hw = hw > 0 ? hw : 0.6;
+		hh = hh > 0 ? hh : 0.4;
+		// is full height setted ?
+		if (fh > 0) fh -= hh;
+		if (hc > 0) fc -= hh;
+		// either use body or full dimensions
+		bw = bw || fw;
+		bh = bh || fh;
+		bc = bc || fc;
+		// we correct the body dimensions
+		bw = bw > 0 ? bw : 0.8;
+		bh = bh > 0 ? bh : 1.4;
+		bc = bc > 0 ? bc : 0.6;
+		// we add those information to the character
+		this.headWidth = hw;
+		this.headHeight = hh;
+		this.bodyWidth = bw;
+		this.bodyHeight = bh;
+		this.bodyCrounched = bc;
+		// we store vertices for ground and ceiling check
+		this.vertices = [{ x: 0, z: 0 }, { x: bw, z: bw }, { x: bw, z: -bw }, { x: -bw, z: bw }, { x: -bw, z: -bw }];
 
 		// position of the new character
 		position = position || { x: 0, y: 0, z: 0 };
 		// the origin of the character will be placed at neck level
-		position.y += dim.body_h;
+		position.y += this.bodyHeight;
 
 		// the orientation of the head (not a quaternion)
-		this.orientation = orientation || { x: 0, y: 0 };
+		this.orientation = { x: orientation || 0, y: 0 };
 
 		// state of the character
 		this.isGounded = false;
 		this.isCrounched = false;
 		// jump timer gives a time interval in which the character can jump
 		this.jumpTimer = 0;
-		// contains the information about the moving platform the character is standing on
+		// contains the information about the platform the character is standing on
 		this.platform = null; // only requiered for moving platforms
 
 		// relative position of the shapes of the character
-		var head_pos = { x: 0, z: 0, y: 0.5 * dim.head_h };
-		var body_pos = { x: 0, z: 0, y: -0.5 * dim.body_h };
+		var head_pos = { x: 0, z: 0, y: 0.5 * hh };
+		var body_pos = { x: 0, z: 0, y: -0.5 * bh };
 		// shapes of the character
-		var head_shape = new CANNON.Box({ x: dim.head_w, y: dim.head_h, z: dim.head_w });
-		var body_shape = new CANNON.Box({ x: dim.body_w, y: dim.body_h, z: dim.body_w });
+		var head_shape = new CANNON.Box({ x: hw, y: hh, z: hw });
+		var body_shape = new CANNON.Box({ x: bw, y: bh, z: bw });
 
 		// we recover the filter based on the team of the player
 		var team = options.team || "none";
-		var filter = Character.FILTERS[team];
-		if (!filter) filter = { group: 7, mask: 7 }; // NO TEAM
+		// should we use self_ group and mask ?
+		var isSelf = this.player.current ? "self_" : "";
+		var filter = Character.FILTERS[isSelf + team] || Character.FILTERS.none;
+		var fg = options.filterGroup,
+		    fm = options.filterMask;
+		fg = fg != null ? fg : filter.group;
+		fm = fm != null ? fm : filter.mask;
 
 		// we create the body collider of the character
 		this.body = new CANNON.Body({
@@ -132,8 +269,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			mass: 10,
 			material: Character.MATERIAL,
 			fixedRotation: true,
-			collisionFilterGroup: filter.group,
-			collisionFilterMask: filter.mask
+			collisionFilterGroup: fg,
+			collisionFilterMask: fm
 		});
 		// we add both shapes to the body
 		this.body.addShape(body_shape, body_pos); // shape 0 = body
@@ -141,7 +278,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 		// we add more information to the bodies
 		this.body.character = this; // a reference to the character
-		head_shape.isHead = true; // this shape is the head
+		if (!options.noHead) head_shape.isHead = true; // this shape is the head
 	}
 	// we add the class to the module
 	HERSTALshared.Character = Character;
@@ -149,25 +286,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	/* SETTER GETTER */
 	/**
-  * to avoid overflood json files with names, we use short names:
-  * o : orientation
-  * m : movement
-  * i : array of bits :
-  ** [0] jump
-  ** [1] crounch
-  ** [2] fire1
-  ** [3] fire2
-  ** [4] use
-  ** [5] reload
-  ** [6] melee
-  ** [7] zoom
-  * w : weapon slot
-  */
-	/**
-  * store all of the inputs set over JSON
-  */
+ Store all of the inputs set over JSON
+ @method setFromInput
+ @param {Object} inputs   Inputs loaded from JSON
+ @param {Vec2}   inputs.o Orientation of the character
+ @param {Vec2}   inputs.m Movement of the character
+ @param {Number} inputs.i Array of bits:
+ 	[0] jump
+ 	[1] crounch
+ 	[2] fire1
+ 	[3] fire2
+ 	[4] use
+ 	[5] reload
+ 	[6] melee
+ 	[7] zoom
+ @param {Number} inputs.w Weapon selection
+ */
 	Character.prototype.setFromInput = function (inputs) {
-		if ((typeof inputs === 'undefined' ? 'undefined' : _typeof(inputs)) !== "object") return; // if inputs is empty, there is nothing to do
+		// if inputs is empty, there is nothing to do
+		if ((typeof inputs === 'undefined' ? 'undefined' : _typeof(inputs)) !== "object") return;
 		this.inputs = {};
 
 		this.inputs.orientation = inputs.o;
@@ -182,19 +319,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		this.inputs.zoom = !!(inputs.i & 128);
 		this.inputs.weapon = inputs.w;
 	};
+	/*
+ to avoid overflood json files with names, we use short names:
+ o : orientation
+ p : position
+ v : velocity
+ g : isGrounded
+ c : isCrounched
+ */
 	/**
-  * to avoid overflood json files with names, we use short names:
-  * o : orientation
-  * p : position
-  * v : velocity
-  * g : isGrounded
-  * c : isCrounched
-  */
-	/**
-  * set all of the position and movement of the character from the data object
-  */
+ Set all of the position and movement of the character from the data object
+ @method setFromData
+ @param {Object} data   Data setting the state of the character
+ @param {Vec2}   data.o Orientation of the character
+ @param {Vec3}   data.p Position of the character
+ @param {Vec3}   data.v Velocity of the character
+ @param {Number} data.i Array of bits:
+ 	[0] is grounded
+ 	[1] is crounched
+ 	[2] is jumping
+ 	[3] is firing
+ 	[4] is reloading
+ */
 	Character.prototype.setFromData = function (data) {
-		if ((typeof data === 'undefined' ? 'undefined' : _typeof(data)) !== "object") return; // if data is empty, there is nothing to do
+		// if data is empty, there is nothing to do
+		if ((typeof data === 'undefined' ? 'undefined' : _typeof(data)) !== "object") return;
 		// we update the orientation of the character
 		this.setLook(data.o);
 
@@ -212,13 +361,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				this.body.velocity.copy(data.v);
 			}
 		}
-		// if grounded and crounched are set
-		if (data.g !== null) this.isGrounded = data.g;
-		if (data.c !== null) this.isCrounched = data.c;
+		// set the state of the character
+		/*jshint eqnull: true*/
+		if (data.i != null) {
+			this.isGrounded = !!(data.i & 1);
+			this.isCrounched = !!(data.i & 2);
+		}
 	};
 	/**
-  * read all of the position and movement of the character and create a object out of them
-  */
+ Read all of the position and movement of the character
+ and create a object out of them
+ */
 	Character.prototype.getData = function () {
 		return {
 			o: this.orientation,
@@ -239,8 +392,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 	/* UPDATE FUNCTIONS */
 	/**
-  * Global update function of the character
-  */
+ Global update function of the character
+ */
 	Character.prototype.updateAll = function () {
 		var inputs = this.inputs || {};
 
@@ -258,9 +411,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		this.setWeapon(inputs.weapon);
 	};
 	/**
-  * Allow the character to look around
-  * calculation based on mouse delta is performed client side
-  */
+ Allow the character to look around
+ calculation based on mouse delta is performed client side
+ */
 	Character.prototype.setLook = function (orientation) {
 		// if orientation is set
 		if (orientation) {
@@ -276,18 +429,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 	};
 	/**
-  * Allow to add more rotation to the character on the Y-axis
-  */
+ Allow to add more rotation to the character on the Y-axis
+ */
 	Character.prototype.addRotation = function (angle) {
 		// we add the angle on the Y-axis
 		this.orientation.x += angle;
 		this.orientation.x %= Math.PI * 2;
 	};
 	/**
-  * Allow the character to move around
-  * Movement calculation is performed both client and server side
-  * server has the authority over the client
-  */
+ Allow the character to move around
+ Movement calculation is performed both client and server side
+ server has the authority over the client
+ */
 	Character.prototype.updateMove = function (axis, jump) {
 		// if axis is not set, we set it to vector null
 		axis = axis || { x: 0, y: 0 };
@@ -302,7 +455,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 		// we need the angle on the x axis (horizontal plane)
 		var theta = this.orientation.x;
-		var speed = this.isCrounched ? Character.ATTRIBUTES.crounchedSpeed : Character.ATTRIBUTES.moveSpeed;
+		var speed = this.isCrounched ? this.crounchedSpeed : this.moveSpeed;
 
 		// we create a new velocity vector
 		var velocity = {
@@ -312,7 +465,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		};
 
 		// if the player pressed the jump input
-		if (jump) this.jumpTimer = Character.ATTRIBUTES.jumpTimer;
+		if (jump) this.jumpTimer = Character.JUMP_TIMER;
 
 		// if the jump timer is set, we decreament it
 		if (this.jumpTimer > 0) --this.jumpTimer;
@@ -324,7 +477,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				// we reset the timer, the character jumps once
 				this.jumpTimer = 0;
 				// we apply a vertical velocity
-				velocity.y = Character.ATTRIBUTES.jumpForce;
+				velocity.y = this.jumpForce;
 			}
 		} else {
 			// in the air, the new velocity is influenced by the old one
@@ -337,8 +490,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		this.body.velocity = velocity;
 	};
 	/**
-  * Function to know if the character is on the ground or not
-  */
+ Function to know if the character is on the ground or not
+ */
 	Character.prototype.updateGround = function () {
 		// we reset the state of the character
 		this.isGrounded = false;
@@ -357,7 +510,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				// the angle between the surface normal and the vector up
 				var angle = result.hitNormalWorld.getAngle(CANNON.Vec3.UNIT_Y);
 				// if the ground on which the character stand is not too steep
-				if (angle < Character.ATTRIBUTES.steepSlope) {
+				if (angle < Character.STEEP_SLOPE) {
 
 					// we are on a ground
 					this.isGrounded = true;
@@ -367,8 +520,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						// did we changed of platform ?
 						var hasChanged = false;
 						if (!platform) hasChanged = true;else if (platform.body !== result.body) hasChanged = true;
-						// if the platform has changed, we need to update the platform
+						// if the platform has changed
 						if (hasChanged) {
+							// we need to update the platform
 							this.platform = { body: result.body };
 							this.updatePlatform();
 						}
@@ -384,9 +538,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		this.platform = null;
 	};
 	/**
-  * Update the position of the character based on the position of the platform he is standing on
-  * /!\ Should be called after physic engine calculations /!\
-  */
+ Update the position of the character based on
+ the position of the moving platform he is standing on
+ /!\ Should be called after physic engine calculations /!\
+ */
 	Character.prototype.updatePlatformPosition = function () {
 		var p = this.platform;
 		if (p) {
@@ -409,9 +564,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 	};
 	/**
-  * update the local position and orientation of the character
-  * relative to the platform
-  */
+ Update the local position and orientation of the character
+ relative to the platform
+ */
 	Character.prototype.updatePlatform = function () {
 		if (this.platform) {
 			// if the platform is not null
@@ -424,8 +579,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		}
 	};
 	/**
-  * Function to manage character height and crounching
-  */
+ Function to manage character height and crounching
+ */
 	Character.prototype.updateCrounch = function (crounch) {
 		var canGetUp = true;
 		if (crounch) {
@@ -439,7 +594,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				// for each vertice, we move it from local to global coords
 				var vert = this.body.vadd(this.dimensions.vertices[i]);
 				// we put the vertice at the top of the head shape
-				vert.y += this.dimensions.head_h;
+				vert.y += this.headHeight;
 
 				// we recover the result of the contact with the ground
 				var result = Character.checkCollision(this.body.world, vert, 0.1);
@@ -450,20 +605,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		// we recover the shape and the offset
 		var shape = this.body.shapes[0];
 		var offset = this.body.shapeOffsets[0];
-		var inc = Character.ATTRIBUTES.crounchIncrement;
+		var inc = Character.CROUNCH_INCREMENT;
 		var h;
 		// if the character can stand up
 		if (canGetUp) {
 			// as long as we are not fully standing up
-			if (shape.halfExtents.y * 2 < this.dimensions.body_h) {
+			if (shape.halfExtents.y * 2 < this.bodyHeight) {
 				// we increase the size of the shape
 				shape.halfExtents.y += inc * 2;
 				// we bring the shape closer to the the origin
 				offset.y -= inc;
 
 				// if we have a shape bigger than expected
-				if (shape.halfExtents.y * 2 >= this.dimensions.body_h) {
-					h = this.dimensions.body_height * 0.5;
+				if (shape.halfExtents.y * 2 >= this.bodyHeight) {
+					h = this.bodyHeight * 0.5;
 					// we cap the values
 					shape.halfExtents.y = h;
 					offset.y = -h;
@@ -474,15 +629,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		} else {
 			// cannot stand up
 			// as long as we are not fully crounched
-			if (shape.halfExtents.y * 2 > this.dimensions.body_c) {
+			if (shape.halfExtents.y * 2 > this.bodyCrounched) {
 				// we decrease the size of the shape
 				shape.halfExtents.y -= inc * 2;
 				// we put the shape farther from the origin
 				offset.y += inc;
 
 				// if we have a shape smaller than expected
-				if (shape.halfExtents.y * 2 < this.dimensions.body_c) {
-					h = this.dimensions.body_c * 0.5;
+				if (shape.halfExtents.y * 2 < this.bodyCrounched) {
+					h = this.bodyCrounched * 0.5;
 					// we cap the values
 					shape.halfExtents.y = h;
 					offset.y = -h;
@@ -492,14 +647,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	Character.prototype.setWeapon = function (index) {
-		// if the weapons array is empty or we haven't specified a weapon to switch to
-		if (this.weapons.length === 0 && index === null) return; //there is nothing to do
+		// if the weapons array is empty
+		// or we haven't specified a weapon to switch to
+		// there is nothing to do
+		if (this.weapons.length === 0 && index == null) return;
 		// what will be the new weapon of the player ?
 		var newWeap = this.currentWeapon;
 		// if index is positive
 		if (-1 < index && index < this.weapons.length) {
 			// if a weapon exists at the index position
-			if (this.weapons[index] !== null) {
+			if (this.weapons[index] != null) {
 				// we set the weapon
 				newWeap = index;
 			}
@@ -513,7 +670,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				// we cap the value
 				if (newWeap >= this.weapons.length) newWeap = 0;else if (newWeap < 0) newWeap = this.weapons.length - 1;
 				// if we found a weapon which is not null, we stop the loop
-				if (this.weapons[newWeap] !== null) stop = true;
+				if (this.weapons[newWeap] != null) stop = true;
 			}
 		}
 
@@ -523,10 +680,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		this.currentWeapon = newWeap;
 	};
 
-	Character.prototype.getDamage = function (damage) {
+	Character.prototype.addDamage = function (damage) {
 		// if the character as some armor
 		if (this.armor > 0) {
-			var armorDamage = damage * Character.ATTRIBUTES.armorProtection;
+			var armorDamage = damage * Character.ARMOR_PROTECTION;
 			damage -= armorDamage; // we reduce the overall damage
 			this.armor -= armorDamage; // we apply damage to the armor
 			// if there was more damage than expected
@@ -541,42 +698,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 		if (this.health <= 0) this.isDead = true;
 	};
 
-	Character.prototype.getHealth = function (health) {
+	Character.prototype.addHealth = function (health) {
 		this.health += health;
-		// if health is higher than max, we cap the value
-		if (this.health > this.maxHealth) this.health = this.maxHealth;
+		// if health is higher than max
+		if (this.health > this.maxHealth && this.maxHealth > 0) this.health = this.maxHealth; // we cap the value
 	};
 
-	Character.prototype.getArmor = function (armor) {
-		this.armor += armor;
-		// if health is higher than max, we cap the value
-		if (this.armor > this.maxArmor) this.armor = this.maxArmor;
+	Character.prototype.addArmor = function (armor) {
+		if (this.armor != null) {
+			this.armor += armor;
+			// if armor is higher than max and max not null
+			if (this.armor > this.maxArmor && this.maxArmor != null) this.armor = this.maxArmor; // we cap the value
+		}
 	};
 
 	Character.prototype.killed = function (callback) {
 
 		callback();
-	};
-
-	/* STATIC ATTRIBUTES */
-	var fw = 0.8,
-	    fh = 1.8,
-	    fc = 1.0;
-	var hw = 0.6,
-	    hh = 0.4; // head dimensions
-	var bw = fw,
-	    bh = fh - hh,
-	    bc = fc - hh; // body dim = full dim - head dim
-
-	// character dimensions
-	Character.DIMENSIONS = {
-		head_w: hw,
-		head_h: hh,
-		body_w: bw,
-		body_h: bh,
-		body_c: bc,
-		// vertices used for ground and ceiling detection
-		vertices: [{ x: 0, z: 0 }, { x: bw, z: bw }, { x: bw, z: -bw }, { x: -bw, z: bw }, { x: -bw, z: -bw }]
 	};
 
 	Character.checkCollision = function (world, vertice) {
@@ -599,20 +737,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	// attributes of the character
-	Character.ATTRIBUTES = {
-		defaultHealth: 100, // health of the character on spawn
-		maxHealth: 100, // maximum health for the character
-		defaultArmor: 0, // armor of the character on spawn
-		maxArmor: 100, // maximum armor for the character
-		armorProtection: 2 / 3, // number of hit taken by the armor
-		moveSpeed: 20, // movement speed standing up
-		crounchedSpeed: 10, // movement speed crounched
-		jumpForce: 30, // jump force
-		jumpTimer: 10, // time before registering jumps
-		crounchIncrement: 0.05, // time between standing and crounching
-		steepSlope: 50 };
+	Character.ARMOR_PROTECTION = 2 / 3; // number of hit taken by the armor
+	Character.JUMP_TIMER = 10; // time before registering jumps
+	Character.CROUNCH_INCREMENT = 0.05; // time between standing and crounching
+	Character.STEEP_SLOPE = 50; // maximum angle for walking on slopes
 
-	/* bit definition:
+	/*
+ bit definition:
  	4 : TEAM BETA
  	3 : TEAM ALPHA
  	2 : NO TEAM
@@ -620,33 +751,40 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  	0 : WORLD
  */
 	// Team definition
-	// maximum angle for walking on slopes
 	Character.FILTERS = {
 		none: { group: 7, mask: 7 }, // NO TEAM
 		alpha: { group: 11, mask: 11 }, // TEAM ALPHA
-		beta: { group: 19, mask: 19 } };
+		beta: { group: 19, mask: 19 }, // TEAM BETA
+		self_none: { group: 1, mask: 1 },
+		self_alpha: { group: 1, mask: 1 },
+		self_beta: { group: 1, mask: 1 }
+	};
 
 	/**
-  * Player informations for both server and client
-  * name of the player and its colors: primary, secondary and laser
-  */
+ Player informations for both server and client
+ name of the player and its colors: primary, secondary and laser
+ */
 
-	// TEAM BETA
-	function Player(id, name, colors, model) {
+	function Player(id, name, options) {
+		options = options || {};
 		this.id = id;
 		this.name = name;
-		this.colors = colors;
 		this.team = "none";
-		this.model = model;
 
-		this.character = null;
+		this.character = null; // character of the player
+		this.current = null; // is it the current player ?
+
+		this.colors = options.colors;
+		this.model = options.model;
+		this.weaponAutoSwitch = options.weaponAutoSwitch;
 	}
 	// we add the class to the module
-	HERSTALshared.Player = Player;
-	Player.prototype.constructor = Player;
+	Player.prototype.constructor = HERSTALshared.Player = Player;
 
 	Player.prototype.createCharacter = function (position, orientation) {
-		this.character = new Character(this, position, orientation, { team: this.team });
+		this.character = new Character(this, position, orientation, {
+			team: this.team
+		});
 	};
 
 	function World() {
@@ -671,8 +809,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 		this.characters = [];
 	}
-	HERSTALshared.World = World;
-	World.prototype.constructor = World;
+	World.prototype.constructor = HERSTALshared.World = World;
 
 	/**
   * The function that must be executed 60 times per seconds
@@ -720,4 +857,29 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	World.FILTER = { group: 7, mask: 7 };
+
+	var Launcher = function (_Weapon) {
+		_inherits(Launcher, _Weapon);
+
+		function Launcher(name, character, projectile, options) {
+			_classCallCheck(this, Launcher);
+
+			options = options || {};
+			// call Weapon constructor
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(Launcher).call(this, name, character, options));
+		}
+
+		return Launcher;
+	}(Weapon);
+
+	HERSTALshared.Launcher = Launcher;
+
+	/**
+ Base class for raycasting weapon
+ extends Weapon class
+ */
+	function Rifle(name, character, options) {
+		options = options || {};
+		Weapon.call(this, name, character, options);
+	}
 })();

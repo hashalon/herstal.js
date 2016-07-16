@@ -1,149 +1,154 @@
-var HERSTALprefs = window.HERSTALprefs || {};
+var HERSTAL = window.HERSTAL || {};
 
-// should we be using localStorage ?
-// set to true only if preferences form
-// and game canvas are in the same document /!\
-HERSTALprefs.localMode   = true;
-HERSTALprefs.isLocalFile = !document.location.host; // is local file ?
+/**
+Namespace to handle loading and saving user configuration
+*/
+var CONFIG = HERSTAL.CONFIG = {
+	// should we be using localStorage ?
+	// set to true only if preferences form
+	// and game canvas are in the same document /!\
+	localMode: true,
 
-// save the content of preferences to localStorage or name
-HERSTALprefs.save = function(){
-	// if we are playing from a local file store to window.name
-	if(HERSTALprefs.isLocalFile && HERSTALprefs.localMode){
-		// we convert the preferences into JSON string
-		window.name = JSON.stringify(HERSTALprefs.preferences);
-		console.log("saved data to window.name !");
-	}else{ // http file
-		for( var index in HERSTALprefs.preferences ){
-			// we recover the option
-			var option = HERSTALprefs.preferences[index];
-			// we store it locally
-			localStorage.setItem(index,JSON.stringify(option));
-		}
-		console.log("saved data to localStorage !");
-	}
-};
+	// is local file ?
+	isLocalFile: !document.location.host,
 
-// load the content from localStorage or name to preferences
-HERSTALprefs.load = function(){
-	// if we are playing from a local file retrieve from window.name
-	if(HERSTALprefs.isLocalFile && HERSTALprefs.localMode){
-		try{
+	// save the content of preferences to localStorage or name
+	save: function(){
+		// if we are playing from a local file store to window.name
+		if(CONFIG.isLocalFile && CONFIG.localMode){
 			// we convert the preferences into JSON string
-			HERSTALprefs.preferences = JSON.parse(window.name);
-			console.log("Loaded data from window.name !");
-		}catch(e){
-			HERSTALprefs.preferences = null;
+			window.name = JSON.stringify(CONFIG.preferences);
+			console.log("saved data to window.name !");
+		}else{ // http file
+			for( var index in CONFIG.preferences ){
+				// we recover the option
+				var option = CONFIG.preferences[index];
+				// we store it locally
+				localStorage.setItem(index,JSON.stringify(option));
+			}
+			console.log("saved data to localStorage !");
 		}
-	}else{ // http file
-		HERSTALprefs.preferences = {};
-		// for each element stored
-		for( var index in localStorage ){
-			// we recover the option
-			var option = localStorage.getItem(index);
-			// store it in the preferences
-			HERSTALprefs.preferences[index] = JSON.parse(option);
+	},
+	// load the content from localStorage or name to preferences
+	load: function(){
+		// if we are playing from a local file retrieve from window.name
+		if(CONFIG.isLocalFile && CONFIG.localMode){
+			try{
+				// we convert the preferences into JSON string
+				CONFIG.preferences = JSON.parse(window.name);
+				console.log("Loaded data from window.name !");
+			}catch(e){
+				CONFIG.preferences = null;
+			}
+		}else{ // http file
+			CONFIG.preferences = {};
+			// for each element stored
+			for( var index in localStorage ){
+				// we recover the option
+				var option = localStorage.getItem(index);
+				// store it in the preferences
+				CONFIG.preferences[index] = JSON.parse(option);
+			}
+			console.log("Loaded data from localStorage !");
 		}
-		console.log("Loaded data from localStorage !");
-	}
-};
+	},
+	// set the default values, based on the keyboard layout
+	reset: function(lang){
+		// we set up the default preferences of the player
+		var config = CONFIG.preferences = {};
 
-// set the default values, based on the keyboard layout
-HERSTALprefs.reset = function(lang){
-	// we set up the default preferences of the player
-	var prefs = HERSTALprefs.preferences = {};
+		// player attributes
+		config.name  = "unnamed"; // user name
+		config.model = "default"; // player model
 
-	// player attributes
-	prefs.name  = "unnamed"; // user name
-	prefs.model = "default"; // player model
+		// colors for team and player
+		config.colorAlpha = "#1133BB"; // allies or team 1
+		config.colorBeta  = "#BB3311"; // enemies or team 2
+		config.colorOwn1  = "#888888"; // player primary color
+		config.colorOwn2  = "#dddddd"; // player secondary color
+		config.colorLaser = "#FFFF66"; // color of the instant gib laser
+		config.colorRelative = false; // are team color relative to the player ?
 
-	// colors for team and player
-	prefs.colorAlpha = "#1133BB"; // allies or team 1
-	prefs.colorBeta  = "#BB3311"; // enemies or team 2
-	prefs.colorOwn1  = "#888888"; // player primary color
-	prefs.colorOwn2  = "#dddddd"; // player secondary color
-	prefs.colorLaser = "#FFFF66"; // color of the instant gib laser
-	prefs.colorRelative = false; // are team color relative to the player ?
+		// set default display configuration
+		config.isFullscreen = false;
+		config.displayX = 1280;
+		config.displayY =  720;
 
-	// set default display configuration
-	prefs.isFullscreen = false;
-	prefs.displayX = 1280;
-	prefs.displayY =  720;
+		// set default audio configuration
+		config.volumeMaster = 50;
+		config.volumeEffect = 50;
+		config.volumeMusic  = 50;
 
-	// set default audio configuration
-	prefs.volumeMaster = 50;
-	prefs.volumeEffect = 50;
-	prefs.volumeMusic  = 50;
+		// mouse controls
+		config.mouseS = 50; // mouse sensibility
+		config.invertX = false;
+		config.invertY = false;
 
-	// mouse controls
-	prefs.mouseS = 50; // mouse sensibility
-	prefs.invertX = false;
-	prefs.invertY = false;
+		// layout is QWERTY
+		// movements controls
+		config.moveF = { btn: 87 }; // W
+		config.moveB = { btn: 83 }; // S
+		config.moveL = { btn: 65 }; // A
+		config.moveR = { btn: 68 }; // D
+		// jump & crounch
+		config.jump    = { btn: 32 }; // SPACE
+		config.crounch = { btn: 16 }; // SHIFT
+		// fire
+		config.fire1 = { btn: 0, isMouse: true }; // Mouse Button Left
+		config.fire2 = { btn: 2, isMouse: true }; // Mouse Button Right
+		// interact
+		config.use    = { btn: 69 }; // E
+		config.reload = { btn: 82 }; // R
+		config.melee  = { btn: 81 }; // Q
+		config.zoom   = { btn:  1, isMouse: true }; // Mouse Wheel Press
+		// weapon selection
+		config.prevWeap = { btn: -1, isMouse: true }; // Mouse Wheel Up
+		config.nextWeap = { btn: -2, isMouse: true }; // Mouse Wheel Down
+		config.weap1 = { btn: 49 }; // 1
+		config.weap2 = { btn: 50 }; // 2
+		config.weap3 = { btn: 51 }; // 3
+		config.weap4 = { btn: 52 }; // 4
+		config.weap5 = { btn: 53 }; // 5
+		config.weap6 = { btn: 54 }; // 6
+		config.weap7 = { btn: 55 }; // 7
+		config.weap8 = { btn: 56 }; // 8
+		config.weap9 = { btn: 57 }; // 9
+		config.weap0 = { btn: 48 }; // 0
 
-	// layout is QWERTY
-	// movements controls
-	prefs.moveF = { btn: 87 }; // W
-	prefs.moveB = { btn: 83 }; // S
-	prefs.moveL = { btn: 65 }; // A
-	prefs.moveR = { btn: 68 }; // D
-	// jump & crounch
-	prefs.jump    = { btn: 32 }; // SPACE
-	prefs.crounch = { btn: 16 }; // SHIFT
-	// fire
-	prefs.fire1 = { btn: 0, isMouse: true }; // Mouse Button Left
-	prefs.fire2 = { btn: 2, isMouse: true }; // Mouse Button Right
-	// interact
-	prefs.use    = { btn: 69 }; // E
-	prefs.reload = { btn: 82 }; // R
-	prefs.melee  = { btn: 81 }; // Q
-	prefs.zoom   = { btn:  1, isMouse: true }; // Mouse Wheel Press
-	// weapon selection
-	prefs.prevWeap = { btn: -1, isMouse: true }; // Mouse Wheel Up
-	prefs.nextWeap = { btn: -2, isMouse: true }; // Mouse Wheel Down
-	prefs.weap1 = { btn: 49 }; // 1
-	prefs.weap2 = { btn: 50 }; // 2
-	prefs.weap3 = { btn: 51 }; // 3
-	prefs.weap4 = { btn: 52 }; // 4
-	prefs.weap5 = { btn: 53 }; // 5
-	prefs.weap6 = { btn: 54 }; // 6
-	prefs.weap7 = { btn: 55 }; // 7
-	prefs.weap8 = { btn: 56 }; // 8
-	prefs.weap9 = { btn: 57 }; // 9
-	prefs.weap0 = { btn: 48 }; // 0
-
-	// based on the given language, we correct the movement keys
-	if(typeof lang === "string"){
-		switch(lang.toLowerCase()){
-			/*
-			// QWERTZ
-			case "de": case "hr": case "sq":
-			case "bs": case "sl": case "rm":
-				break;
-			*/
-			// AZERTY
-			case "fr":
-				prefs.moveF.btn = 90; // Z
-				prefs.moveL.btn = 81; // Q
-				prefs.melee.btn = 68; // A
-				break;
+		// based on the given language, we correct the movement keys
+		if(typeof lang === "string"){
+			switch(lang.toLowerCase()){
+				/*
+				// QWERTZ
+				case "de": case "hr": case "sq":
+				case "bs": case "sl": case "rm":
+					break;
+				*/
+				// AZERTY
+				case "fr":
+					config.moveF.btn = 90; // Z
+					config.moveL.btn = 81; // Q
+					config.melee.btn = 68; // A
+					break;
+			}
 		}
-	}
-	console.log("Restored default data !");
+		console.log("Restored default data !");
+	},
 };
 
 // read the data stored in localStorage
-HERSTALprefs.load();
+CONFIG.load();
 
 // is this the first time using HERSTAL.js on this domain ?
 var firstSetup = false;
 // if null or empty, then it is the first setup
-if(!HERSTALprefs.preferences) firstSetup = true;
-else if(!HERSTALprefs.preferences.name) firstSetup = true;
+if(!CONFIG.preferences) firstSetup = true;
+else if(!CONFIG.preferences.name) firstSetup = true;
 
 // if preferences are not set
 if(firstSetup){
 	var lang = navigator.language || navigator.languages[0];
 	lang = lang.substr(0,2); // only first two characters
 	// we need to recover the keyboard layout of the user
-	HERSTALprefs.reset(lang);
+	CONFIG.reset(lang);
 }

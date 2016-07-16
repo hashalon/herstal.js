@@ -10,7 +10,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   window.HERSTALclient = HERSTALclient;
 
   if (!io) throw new Error('Herstal.client needs Socket.io to work');
-  if (!CooMan) throw new Error('Herstal.client needs CookieManager to work');
+  if (!HERSTALprefs) throw new Error('Herstal.client needs Herstal.preferences to work');
   if (!HERSTALshared) throw new Error('Herstal.client needs Herstal.shared to work');
 
   /**
@@ -30,8 +30,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     this.mesh = new THREE.Mesh(this.geometry, this.material);
   }
   // we add the class to the module
-  HERSTALclient.CharacterModel = CharacterModel;
-  CharacterModel.prototype.constructor = CharacterModel;
+  CharacterModel.prototype.constructor = HERSTALclient.CharacterModel = CharacterModel;
 
   CharacterModel.prototype.animate = function (animation) {};
 
@@ -53,8 +52,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }, false);
   }
   // we add the class to the module
-  HERSTALclient.CurrentPlayer = CurrentPlayer;
-  CurrentPlayer.prototype.constructor = CurrentPlayer;
+  CurrentPlayer.prototype.constructor = HERSTALclient.CurrentPlayer = CurrentPlayer;
 
   /**
    * Handle event such as keypress and mouse button and store the result
@@ -78,7 +76,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           btn = delta > 0 ? -1 : -2;
           isMouse = true;
         }
-      } else if (e.button !== null) {
+      } else if (e.button != null) {
         // mouse button
         btn = e.button;
         isMouse = true;
@@ -88,7 +86,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       }
 
       // if our event match a key or mouse input
-      if (btn !== null) {
+      if (btn != null) {
         // we recover the action this button activate
         var tag = isMouse ? CurrentPlayer.INPUTS.mouse[btn] : CurrentPlayer.INPUTS.keyboard[btn];
 
@@ -136,7 +134,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     // if the options is an object
     if ((typeof option === 'undefined' ? 'undefined' : _typeof(option)) === "object") {
       // if the object as a btn attribute
-      if (option.btn !== null) {
+      if (option.btn != null) {
         // if it as a isMouse attribute set to true
         if (option.isMouse) CurrentPlayer.INPUTS.mouse[option.btn] = id;else CurrentPlayer.INPUTS.keyboard[option.btn] = id;
       }
@@ -152,8 +150,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     this.socket = io.connect(address);
   }
   // we add the class to the module
-  HERSTALclient.Client = Client;
-  Client.prototype.constructor = Client;
+  Client.prototype.constructor = HERSTALclient.Client = Client;
 
   /**
    * Class to create a canvas, you should use only one for your web page
@@ -172,8 +169,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     this.armsRender = armsRender;
   }
   // we add the class to the module
-  HERSTALclient.Canvas = Canvas;
-  Canvas.prototype.constructor = Canvas;
+  Canvas.prototype.constructor = HERSTALclient.Canvas = Canvas;
 
   /**
    * render the scene 60 times per second from the camera
@@ -209,8 +205,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
     this.characterModels = [];
   }
-  HERSTALclient.WorldRender = WorldRender;
-  WorldRender.prototype.constructor = WorldRender;
+  WorldRender.prototype.constructor = HERSTALclient.WorldRender = WorldRender;
 
   WorldRender.prototype.addCharacterModel = function (characterModel) {
     // since we are in a web browser, we can use the method addElement defined in HERSTALshared

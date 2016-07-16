@@ -11,8 +11,7 @@ function WorldRender (world, camera){
 
 	this.characterModels = [];
 }
-HERSTALclient.WorldRender = WorldRender;
-WorldRender.prototype.constructor = WorldRender;
+WorldRender.prototype.constructor = HERSTALclient.WorldRender = WorldRender;
 
 WorldRender.prototype.addCharacterModel = function( characterModel ){
 	// since we are in a web browser, we can use the method addElement defined in HERSTALshared

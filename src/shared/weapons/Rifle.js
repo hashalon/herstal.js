@@ -15,4 +15,4 @@ class Rifle extends HERSTAL.Weapon {
 
 	}
 }
-HERSTALshared.Rifle = Rifle;
+HERSTAL.Rifle = Rifle;

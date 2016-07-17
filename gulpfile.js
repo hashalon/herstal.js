@@ -18,6 +18,7 @@ gulp.task('build-shared', function() {
 	srcs = [
 		"src/shared/Init.js",
 		"src/shared/Util.js",
+		"src/shared/Team.js",
 		"src/shared/weapons/Weapon.js",
 		"src/shared/projectiles/Projectile.js",
 		"src/shared/**/*.js",

@@ -32,13 +32,10 @@ class Weapon {
 		this.acquired = !options.notAcquired;
 
 		// which group and mask should we use for this weapon ?
-		var team = options.team || "none";
-		// should we use self_ group and mask ?
-		var isSelf = this.character.player.current ? "self_" : "";
-		var filter = Weapon.FILTERS[isSelf+team] || Weapon.FILTERS.none;
-		var fg = options.filterGroup, fm = options.filterMask;
-		this.filterGroup = fg != null ? fg : filter.group;
-		this.filterMask  = fm != null ? fm : filter.mask ;
+		var team = options.team || this.character.team;
+		var filter = HERSTAL.TEAM.getCollisionFilter(team);
+		this.filterGroup = options.filterGroup || filter.group;
+		this.filterMask  = options.filterMask  || filter.mask ;
 	}
 
 	/**
@@ -54,13 +51,4 @@ class Weapon {
 	secondary(){}
 }
 // we add the class to the Namespace
-HERSTALshared.Weapon = Weapon;
-
-Weapon.FILTERS = {
-	none  : { group: 0b1, mask: 0b1 },
-	alpha : { group: 0b1, mask: 0b1 },
-	beta  : { group: 0b1, mask: 0b1 },
-	self_none  : { group: 0b1, mask: 0b1 },
-	self_alpha : { group: 0b1, mask: 0b1 },
-	self_beta  : { group: 0b1, mask: 0b1 },
-};
+HERSTAL.Weapon = Weapon;

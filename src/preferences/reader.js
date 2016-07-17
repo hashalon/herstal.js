@@ -61,13 +61,19 @@ var CONFIG = HERSTAL.CONFIG = {
 		config.name  = "unnamed"; // user name
 		config.model = "default"; // player model
 
-		// colors for team and player
-		config.colorAlpha = "#1133BB"; // allies or team 1
-		config.colorBeta  = "#BB3311"; // enemies or team 2
-		config.colorOwn1  = "#888888"; // player primary color
-		config.colorOwn2  = "#dddddd"; // player secondary color
-		config.colorLaser = "#FFFF66"; // color of the instant gib laser
-		config.colorRelative = false; // are team color relative to the player ?
+		// colors of the current player
+		config.colorPlayer  = "#888888"; // color of the player
+		config.colorLaser   = "#e3ff00"; // color of the instant gib laser
+		config.colorAllies  = "#00c2ff"; // color of the allies of the player
+		config.colorEnemies = "#ff5400"; // color of the enemies of the player
+
+		// colors of teams
+		/*
+		config.color1 = "#1133BB"; // color team alpha
+		config.color2 = "#BB3311"; // color team beta
+		config.color3 = "#FFDD22"; // color team gamma
+		config.color4 = "#66CC22"; // color team delta
+		*/
 
 		// set default display configuration
 		config.isFullscreen = false;

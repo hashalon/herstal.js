@@ -19,4 +19,4 @@ class Launcher extends HERSTAL.Weapon {
 
 }
 // we had the class to the Namespace
-HERSTALshared.Launcher = Launcher;
+HERSTAL.Launcher = Launcher;

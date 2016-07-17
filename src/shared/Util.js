@@ -41,7 +41,7 @@ Array.prototype.removeElement = function(e){
 	return index;
 };
 
-var Util = {
+HERSTAL.UTIL = {
 	/**
 	Return a normalized vector pointing at the left of the quaternion
 	@method getLeft
@@ -51,8 +51,8 @@ var Util = {
 	getLeft: function(){
 		return new CANNON.Vec3(
 			1-2*( q.y*q.z - q.z*q.z ),
-              2*( q.x*q.y + q.z*q.w ),
-              2*( q.x*q.z - q.y*q.w )
+        2*( q.x*q.y + q.z*q.w ),
+        2*( q.x*q.z - q.y*q.w )
 		);
 	},
 	/**
@@ -63,10 +63,10 @@ var Util = {
 	*/
 	getUp: function(){
 		return new CANNON.Vec3(
-              2*( q.x*q.y - q.z*q.w ),
-            1-2*( q.x*q.x - q.z*q.z ),
-              2*( q.y*q.z + q.x*q.w )
-        );
+        2*( q.x*q.y - q.z*q.w ),
+      1-2*( q.x*q.x - q.z*q.z ),
+        2*( q.y*q.z + q.x*q.w )
+    );
 	},
 	/**
 	Return a normalized vector pointing forward from the quaternion
@@ -76,10 +76,10 @@ var Util = {
 	*/
 	getForward: function(){
 		return new CANNON.Vec3(
-              2*( q.x*q.z + q.w*q.y ),
-              2*( q.y*q.x - q.w*q.x ),
-            1-2*( q.x*q.x + q.y*q.y )
-        );
+        2*( q.x*q.z + q.w*q.y ),
+        2*( q.y*q.x - q.w*q.x ),
+      1-2*( q.x*q.x + q.y*q.y )
+    );
 	},
 	/**
 	Return true if the given object is a 3D Vector

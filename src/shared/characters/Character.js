@@ -26,8 +26,8 @@ class Character {
 	@param {Number} options.bodyCrounched The height of the body part of the character when crounched
 	@param {Number} options.headWidth The width of the head part of the character
 	@param {Number} options.headHeight The height of the head part of the character
-	@param {String} options.team
-		The team identificator of the character ("none", "alpha", "beta")
+	@param {Number} options.team
+		The team identificator of the character
 		Also set automatically filterGroup and filterMask
 	@param {Number} options.filterGroup Override the character filterGroup
 	@param {Number} options.filterMask Override the character filterMask
@@ -122,13 +122,8 @@ class Character {
 		var body_shape = new CANNON.Box({ x: bw, y: bh, z: bw });
 
 		// we recover the filter based on the team of the player
-		var team = options.team || "none";
-		// should we use self_ group and mask ?
-		var isSelf = this.player.current ? "self_" : "";
-		var filter = Character.FILTERS[isSelf+team] || Character.FILTERS.none;
-		var fg = options.filterGroup, fm = options.filterMask;
-		fg = fg != null ? fg : filter.group;
-		fm = fm != null ? fm : filter.mask ;
+		this.team = options.team || 0;
+		var filter = HERSTAL.TEAM.getCollisionFilter(this.team);
 
 		// we create the body collider of the character
 		this.body = new CANNON.Body({
@@ -136,8 +131,8 @@ class Character {
 			position: position,
 			material: Character.MATERIAL,
 			fixedRotation: true,
-			collisionFilterGroup: fg,
-			collisionFilterMask:  fm,
+			collisionFilterGroup: options.filterGroup || filter.group,
+			collisionFilterMask:  options.filterMask  || filter.mask ,
 		});
 		// we add both shapes to the body
 		this.body.addShape(body_shape, body_pos); // shape 0 = body
@@ -205,11 +200,11 @@ class Character {
 		this.setLook(data.o);
 
 		// if the position is set
-		if(Util.isVector3(data.p)){
+		if(HERSTAL.UTIL.isVector3(data.p)){
 			this.body.position.copy(data.p);
 		}
 		// if the velocity is set
-		if(Util.isVector3(data.v)){
+		if(HERSTAL.UTIL.isVector3(data.v)){
 			this.body.velocity.copy(data.v);
 		}
 		// set the state of the character
@@ -527,7 +522,7 @@ class Character {
 			}
 		}
 
-		// we call the necessary functions to update the display in HERSTALclient
+		// we call the necessary functions to update the display in HERSTAL client
 
 		// we can store the new weapon as the current weapon now
 		this.currentWeapon = newWeap;
@@ -576,6 +571,9 @@ class Character {
 }
 HERSTAL.Character = Character;
 
+// we create a new material for the characters
+Character.MATERIAL = new CANNON.Material("character");
+
 /**
 cast rays from the given vertice with a length of padding
 @method checkCollision
@@ -605,21 +603,3 @@ Character.ARMOR_PROTECTION  = 2/3 ; // number of hit taken by the armor
 Character.JUMP_TIMER        = 10  ; // time before registering jumps
 Character.CROUNCH_INCREMENT = 0.05; // time between standing and crounching
 Character.STEEP_SLOPE       = 50  ; // maximum angle for walking on slopes
-
-/*
-bit definition:
-	4 : TEAM BETA
-	3 : TEAM ALPHA
-	2 : NO TEAM
-	1 : CHARACTER
-	0 : WORLD
-*/
-// Team definition
-Character.FILTERS = {
-	none  : { group: 0b00111, mask: 0b00111 }, // NO TEAM
-	alpha : { group: 0b01011, mask: 0b01011 }, // TEAM ALPHA
-	beta  : { group: 0b10011, mask: 0b10011 }, // TEAM BETA
-	self_none  : { group: 0b1, mask: 0b1 },
-	self_alpha : { group: 0b1, mask: 0b1 },
-	self_beta  : { group: 0b1, mask: 0b1 },
-};

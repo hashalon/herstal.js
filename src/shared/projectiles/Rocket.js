@@ -23,7 +23,7 @@ class Rocket extends HERSTAL.Projectile {
 
 		// we need the speed of the projectile
 		var speed = options.speed || 20;
-		this.direction = Util.getForward(orientation).scale(speed);
+		this.direction = HERSTAL.UTIL.getForward(orientation).scale(speed);
 
 		// special behavior:
 		// does the rocket pass through characters ?
@@ -59,7 +59,7 @@ class Rocket extends HERSTAL.Projectile {
 						this.direction
 					);
 					// we update the orientation of the Rocket
-					this.orientation = Util.lookRotation(this.direction);
+					this.orientation = HERSTAL.UTIL.lookRotation(this.direction);
 					// put the projectile at the position of impact
 					this.position = ray.result.hitPointWorld;
 				}else this.isDestroyed = true;

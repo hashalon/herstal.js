@@ -13,11 +13,10 @@ class World {
 		this.cannonWorld.gravity.set(0, -100, 0);
 		this.cannonWorld.defaultContactMaterial.friction = 0.1;
 
-		// worldRender used in HERSTALclient
+		// worldRender used in HERSTAL client
 		this.render = null;
 
-		// we create a new material for the characters
-		this.characterMaterial = new CANNON.Material("character");
+		// we add the character material to this world
 		this.cannonWorld.addContactMaterial(
 			new CANNON.ContactMaterial(
 				HERSTAL.Character.MATERIAL, WORLD.defaultMaterial, {
@@ -93,5 +92,3 @@ class World {
 	}
 }
 HERSTAL.World = World;
-
-World.FILTER = { group: 0b00111, mask: 0b00111 };

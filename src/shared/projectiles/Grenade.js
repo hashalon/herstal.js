@@ -46,7 +46,7 @@ class Grenade extends HERSTAL.Projectile {
 		}
 		// we need a velocity for our projectile
 		var speed = options.speed || 20;
-		var velocity = Util.getForward(orientation).scale(speed);
+		var velocity = HERSTAL.UTIL.getForward(orientation).scale(speed);
 
 		// we create the body of our grenade
 		this.body = new CANNON.Body({

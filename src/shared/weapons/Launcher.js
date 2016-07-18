@@ -1,12 +1,29 @@
 /**
+Base class for Projectiles based weapons
 @class Launcher
+@extends Weapon
 */
 class Launcher extends HERSTAL.Weapon {
+	/**
+	@constructor
+	@param {String} name The name of the weapon
+	@param {Character} character The character holding the weapon
+	@param {Object} [options] Configuration of the weapon
+	@param {Object} [projectile] Configuration of the projectiles
+	*/
 	constructor(name, character, options, projectile){
 		options = options || {};
 		// call Weapon constructor
 		super(name, character, options);
-		this.projectile = projectile;
+
+		// definition of the projectile
+		projectile = projectile || {};
+
+		// which kind of projectile should be created ?
+		var clz = projectile.classUsed,
+				opt = projectile.options;
+		this.projClass   = typeof clz === "function" ? clz : HERSTAL.Rocket;
+		this.projOptions = typeof opt === "object"   ? opt : {};
 	}
 
 	/**
@@ -14,7 +31,12 @@ class Launcher extends HERSTAL.Weapon {
 	@method fire
 	*/
 	fire(){
-
+		var proj = new this.projClass(
+			this, // this weapon
+			this.character.position,    // position of the emmiter of the gun
+			this.character.orientation, // orientation of the head of the player
+			this.projOptions,           // options for the projectile
+		);
 	}
 
 }

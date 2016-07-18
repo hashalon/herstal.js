@@ -1,29 +1,31 @@
 /**
+Base class for Rocket or Bullet like projectiles
 @class Rocket
+@extends Projectile
 */
 class Rocket extends HERSTAL.Projectile {
 	/**
 	@constructor
-	@param {String} name The name of the weapon
 	@param {Launcher} weapon The weapon who emitted that projectile
 	@param {Vec3} position The position of the projectile at start
-	@param {Quaternion} orientation of the projectile at start
-	@param {Object} options Configuration of the projectile
-	@param {Boolean} options.isPercing Does the rocket pass through characters ?
-	@param {Boolean} options.canReflect Does the rocket is reflected on walls ?
+	@param {Object} orientation Orientation of the projectile at start (x: horizontal angle,y: vertical angle)
+	@param {Object} [options] Configuration of the projectile
+	@param {Boolean} [options.isPercing] Does the rocket pass through characters ?
+	@param {Boolean} [options.canReflect] Does the rocket is reflected on walls ?
+	@param {Number}  [options.knockBack] Force at which the enemy will be propelled back by the rocket on direct hit
 	*/
-	constructor(name, weapon, position, orientation, options){
+	constructor(weapon, position, orientation, options){
 		options = options || {};
 		// call projectile constructor
-		super(name, weapon, options);
+		super(weapon, options);
 
 		// starting position and orientation of the projectile
-		this.position    = position;
-		this.orientation = orientation;
+		this.position = position;
 
 		// we need the speed of the projectile
 		var speed = options.speed || 20;
-		this.direction = HERSTAL.UTIL.getForward(orientation).scale(speed);
+		this.direction =
+			HERSTAL.UTIL.getForwardFromAngles(orientation).scale(speed);
 
 		// special behavior:
 		// does the rocket pass through characters ?
@@ -58,8 +60,6 @@ class Rocket extends HERSTAL.Projectile {
 						norm.scale( 2 * this.direction.dot(norm) ),
 						this.direction
 					);
-					// we update the orientation of the Rocket
-					this.orientation = HERSTAL.UTIL.lookRotation(this.direction);
 					// put the projectile at the position of impact
 					this.position = ray.result.hitPointWorld;
 				}else this.isDestroyed = true;
@@ -84,7 +84,7 @@ class Rocket extends HERSTAL.Projectile {
 	@return {Quaternion} The orientation in space
 	*/
 	get Orientation(){
-		return this.orientation;
+		return HERSTAL.UTIL.lookRotation(this.direction);
 	}
 }
 HERSTAL.Rocket = Rocket;

@@ -1,14 +1,16 @@
 /**
+Abstract Base class for all Projectiles
 @class Projectile
 */
 class Projectile {
 	/**
+	Caution to extend this class constructor should have this interface:
+	constructor(weapon, position, orientation, options)
 	@constructor
-	@param {String} name The name of the weapon
 	@param {Launcher} weapon The weapon who emitted that projectile
-	@param {Object} options Configuration of the projectile
+	@param {Object} [options] Configuration of the projectile
 	*/
-	constructor(name, weapon, options){
+	constructor(weapon, options){
 		options = options || {};
 
 		// id of the projectile for online identification
@@ -16,12 +18,13 @@ class Projectile {
 		// the world in which the projectile move
 		this.world = weapon.world;
 
-		// name of the projectile and the weapon which emitted it
-		this.name   = name;
+		// weapon which emitted the projectile
 		this.weapon = weapon;
+
 		// direct damage hit and life time of the projectile
 		this.damage = options.directDamage ||  50;
 		this.life   = options.lifeTime     || 120; //2 seconds
+
 		// does the projectile explode on impact ?
 		if(options.explode){
 			var rad = options.explosionRadius || 10;
@@ -74,6 +77,7 @@ class Projectile {
 	/**
 	Destroy the projectile
 	@method destroy
+	@return raycast results
 	*/
 	destroy(){
 		// if explosion radius is set
@@ -81,42 +85,57 @@ class Projectile {
 			// for each physical objects
 			var bodies = this.world.cannonWorld.bodies;
 			for(var i=0; i<bodies.length; ++i){
-				// if it's body is dynamic
-				var body = bodies[i];
-				if(body.type === CANNON.Body.DYNAMIC){
-					var p1 = this.Position,
-						  p2 = body.position;
-					// if the body is within blast radius
-					var direction = p1.vsub(p2);
-					var sqrDistance  = direction.sqrLength();
-					if(sqrDistance < this.sqrRadius){
-						// we check if the body is not behind a wall
-						var ray = new CANNON.Ray(p1, p2);
-						ray.intersectWorld(this.world, this._raycastOpt);
-						// if the body is exposed to the explosion
-						if(body === ray.result.body){
-							// if we specified a repulsion force
-							if(this.explForce > 0){
-								// we normalize direction and scale it up
-								direction.normalize();
-								direction.mult(this.explForce, direction);
-								body.applyImpulse(direction, p1);
-							}
-							// if we specified damages
-							if(this.explDamage > 0 && body.character != null){
-								// full damage at explosion point
-								// less damage at perifery
-								var dmg = Math.sqrt(
-									this.sqrRadius - sqrDistance/this.sqrRadius
-								);
-								body.character.addDamage(dmg);
-							}
-						}
-					}
-				}
+
+				// we check the effect of the explosion on the body
+				this._explodeOnBody(bodies[i]);
 			}
 		}
-		// TODO remove projectile from world
+	}
+
+	/**
+
+	*/
+	_explodeOnBody(body){
+		// if the body is dynamic
+		if(body.type === CANNON.Body.DYNAMIC){
+			
+			// we define two points to cast a ray
+			var p1 = this.Position,
+					p2 = body.position;
+
+			// if the body is within blast radius
+			var direction = p1.vsub(p2);
+			var sqrDistance  = direction.sqrLength();
+			if(sqrDistance < this.sqrRadius){
+
+				// we check if the body is not behind a wall
+				var ray = new CANNON.Ray(p1, p2);
+				ray.intersectWorld(this.world, this._raycastOpt);
+
+				// if the body is exposed to the explosion
+				if(body === ray.result.body){
+
+					// if we specified a repulsion force
+					if(this.explForce > 0){
+						// we normalize direction and scale it up
+						direction.normalize();
+						direction.mult(this.explForce, direction);
+						body.applyImpulse(direction, p1);
+					}
+
+					// if we specified damages
+					if(this.explDamage > 0 && body.character != null){
+						// full damage at explosion point
+						// less damage at perifery
+						var dmg = Math.sqrt(
+							this.sqrRadius - sqrDistance/this.sqrRadius
+						);
+						body.character.addDamage(dmg);
+					}
+				}
+
+			}
+		}
 	}
 }
 HERSTAL.Projectile = Projectile;

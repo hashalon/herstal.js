@@ -4,10 +4,9 @@
 class Grenade extends HERSTAL.Projectile {
 	/**
 	@constructor
-	@param {String} name The name of the weapon
 	@param {Launcher} weapon The weapon who emitted that projectile
 	@param {Vec3} position The position of the grenade when created
-	@param {Quaternion} orientation The orientation of the grenade when created
+	@param {Object} orientation The orientation of the grenade when created (x: horizontal angle,y: vertical angle)
 	@param {Object} [options] Configuration of the Projectile
 	@param {Number} [options.speed] The speed of the grenade at start
 	@param {Number} [options.mass] The mass of the grenade
@@ -19,10 +18,10 @@ class Grenade extends HERSTAL.Projectile {
 	@param {Number} [options.filterGroup] The filter group of the body
 	@param {Number} [options.filterMask]  The filter mask of the body
 	*/
-	constructor(name, weapon, position, orientation, options){
+	constructor(weapon, position, orientation, options){
 		options = options || {};
 		// call projectile constructor
-		super(name, weapon, options);
+		super(weapon, options);
 
 		// default shape is sphere
 		var shape  = options.shape || Grenade.SPHERE,
@@ -47,9 +46,14 @@ class Grenade extends HERSTAL.Projectile {
 		// we need a velocity for our projectile
 		var speed = options.speed || 20;
 		var velocity = HERSTAL.UTIL.getForward(orientation).scale(speed);
+		// we need the orientation of the projectile as a quaternion
+		var quat = new CANNON.Quaternion();
+		quat.setFromEuler(orientation.x, orientation.y, 0, 'YXZ');
 
 		// we create the body of our grenade
 		this.body = new CANNON.Body({
+			position: position,
+			quaternion: quat,
 			mass: options.mass || 1,
 			shape: shape,
 			velocity: velocity,
@@ -85,6 +89,17 @@ class Grenade extends HERSTAL.Projectile {
 	*/
 	get Orientation(){
 		return this.body.quaternion;
+	}
+
+	/**
+	Destroy the projectile
+	@method destroy
+	*/
+	destroy(){
+		// we need to remove the grenade from the world
+		this.world.removeBody(this.body);
+		// we can then destroy it
+		super.destroy();
 	}
 }
 HERSTAL.Grenade = Grenade;

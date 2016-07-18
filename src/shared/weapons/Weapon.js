@@ -1,28 +1,36 @@
 /**
-Base class for all weapons
+Abstract Base class for all weapons
 @class Weapon
 */
 class Weapon {
 	/**
 	@constructor
-	@param {String}    name      The name of the weapon
+	@param {String} name The name of the weapon
 	@param {Character} character The character holding the weapon
-	@param
+	@param {Object} [options] Configuration of the weapon
+	@param {Number} [options.damage] Number of damage dealt by the weapon
+	@param {Number} [options.ammo] Number of ammo currently in the weapon
+	@param {Number} [options.maxAmmo] Max ammo of the weapon
+	@param {Number} [options.firerate] Number of shots per seconds
+	@param {Number} [options.recoil] Force at which the holder will be propelled back by the shot
+	@param {Number} [options.filterGroup] Define the collision group of the weapon
+	@param {Number} [options.filterMask] Define the collision mask of the weapon
+	@param {Boolean} [options.notAcquired] Has the weapon not been acquired ?
 	*/
 	constructor(name, character, options){
 		options = options || {};
 
 		// id of the weapon for multiplayer identification
 		this.id = null;
-		// world in which the weapon exists
-		this.world = character.world;
 
 		// name of the weapon and character using it
 		this.name      = name;
 		this.character = character;
+		// world in which the weapon exists
+		this.world = character.world;
 
 		// damage dealt by the weapon if raycast or too close range
-		this.damage    = options.damage || 0;
+		this.damage = options.damage || 0;
 		// if maxAmmo is set and greater than 0
 		if(options.maxAmmo > 0){
 			this.ammo    = options.ammo;

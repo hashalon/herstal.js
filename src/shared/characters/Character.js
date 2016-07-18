@@ -9,29 +9,29 @@ class Character {
 	@param {Player} player   Player which will be represented by the character
 	@param {Vec3}   position Foot position of the character
 	@param {Number} orientation Angle of the character at start
-	@param {Object} options Optional configurations
-	@param {Number} options.health The health of the character
-	@param {Number} options.maxHealth The maximum health of the character (if < 0, no capping)
-	@param {Number} options.armor The armor of the character (if null, no armor)
-	@param {Number} options.maxArmor The maximum armor of the character (if null, no capping)
-	@param {Number} options.moveSpeed The speed of the character when walking
-	@param {Number} options.crounchSpeed The speed of the character when crounched
-	@param {Number} options.jumpForce The force applied to the character when jumping
-	@param {Number} options.mass The mass of the character
-	@param {Number} options.fullWidth The width of the character
-	@param {Number} options.fullHeight The full height of the character when standing up
-	@param {Number} options.fullCrounched The full height of the character when crounched
-	@param {Number} options.bodyWidth The width of the character
-	@param {Number} options.bodyHeight The height of the body part of the character when standing up
-	@param {Number} options.bodyCrounched The height of the body part of the character when crounched
-	@param {Number} options.headWidth The width of the head part of the character
-	@param {Number} options.headHeight The height of the head part of the character
-	@param {Number} options.team
+	@param {Object} [options] Optional configurations
+	@param {Number} [options.health] The health of the character
+	@param {Number} [options.maxHealth] The maximum health of the character (if < 0, no capping)
+	@param {Number} [options.armor] The armor of the character (if null, no armor)
+	@param {Number} [options.maxArmo]r The maximum armor of the character (if null, no capping)
+	@param {Number} [options.moveSpeed] The speed of the character when walking
+	@param {Number} [options.crounchSpeed] The speed of the character when crounched
+	@param {Number} [options.jumpForce] The force applied to the character when jumping
+	@param {Number} [options.mass] The mass of the character
+	@param {Number} [options.fullWidth] The width of the character
+	@param {Number} [options.fullHeight] The full height of the character when standing up
+	@param {Number} [options.fullCrounched] The full height of the character when crounched
+	@param {Number} [options.bodyWidth] The width of the character
+	@param {Number} [options.bodyHeight] The height of the body part of the character when standing up
+	@param {Number} [options.bodyCrounched] The height of the body part of the character when crounched
+	@param {Number} [options.headWidth] The width of the head part of the character
+	@param {Number} [options.headHeight] The height of the head part of the character
+	@param {Number} [options.team]
 		The team identificator of the character
 		Also set automatically filterGroup and filterMask
-	@param {Number} options.filterGroup Override the character filterGroup
-	@param {Number} options.filterMask Override the character filterMask
-	@param {Boolean} options.noHead Tells if the head part should have the isHead property
+	@param {Number} [options.filterGroup] Override the character filterGroup
+	@param {Number} [options.filterMask] Override the character filterMask
+	@param {Boolean} [options.noHead] Tells if the head part should have the isHead property
 	*/
 	constructor(player, position, orientation, weapons, options){
 		options = options || {};
@@ -43,11 +43,11 @@ class Character {
 
 		// the player controlling the character
 		this.player = player;
-		this.inputs = null;
+		this.inputs = {};
 		// weapons of the character (max should be 10)
-		// the array needs atleast one weapon
-		this.weapons = weapons || [new Weapon("none", this)];
-		this.currentWeapon = 0;
+		this.weapons = weapons || [];
+		// if weapon array is null, currentWeapon is null
+		this.currentWeapon = this.weapons.length>0 ? 0 : null;
 
 		// characterRender used in HERSTAL.client
 		this.render = null;
@@ -148,10 +148,10 @@ class Character {
 	/**
 	Store all of the inputs set over JSON
 	@method setFromInput
-	@param {Object} inputs   Inputs loaded from JSON
-	@param {Vec2}   inputs.o Orientation of the character
-	@param {Vec2}   inputs.m Movement of the character
-	@param {Number} inputs.i Array of bits:
+	@param {Object} [inputs]   Inputs loaded from JSON
+	@param {Vec2}   [inputs.o] Orientation of the character
+	@param {Vec2}   [inputs.m] Movement of the character
+	@param {Number} [inputs.i] Array of bits:
 		[0] jump
 		[1] crounch
 		[2] fire1
@@ -162,65 +162,77 @@ class Character {
 		[7] zoom
 	@param {Number} inputs.w Weapon selection
 	*/
-	setFromInput(inputs){
+	setInputFromJSON(inputs){
 		// if inputs is empty, there is nothing to do
 		if(typeof inputs !== "object") return;
 		this.inputs = {};
 
-		this.inputs.orientation = inputs.o;
-		this.inputs.movement    = inputs.m;
-		this.inputs.jump    = !!(inputs.i &        0b1);
-		this.inputs.crounch = !!(inputs.i &       0b10);
-		this.inputs.fire1   = !!(inputs.i &      0b100);
-		this.inputs.fire2   = !!(inputs.i &     0b1000);
-		this.inputs.use     = !!(inputs.i &    0b10000);
-		this.inputs.reload  = !!(inputs.i &   0b100000);
-		this.inputs.melee   = !!(inputs.i &  0b1000000);
-		this.inputs.zoom    = !!(inputs.i & 0b10000000);
-		this.inputs.weapon  = inputs.w;
+		if(HERSTAL.UTIL.isVector2(inputs.o)){
+			this.inputs.orientation = inputs.o;
+		}
+		if(HERSTAL.UTIL.isVector2(inputs.m)){
+			this.inputs.movement = inputs.m;
+		}
+		if(typeof inputs.i === "number"){
+			this.inputs.jump    = !!(inputs.i &        0b1);
+			this.inputs.crounch = !!(inputs.i &       0b10);
+			this.inputs.fire1   = !!(inputs.i &      0b100);
+			this.inputs.fire2   = !!(inputs.i &     0b1000);
+			this.inputs.use     = !!(inputs.i &    0b10000);
+			this.inputs.reload  = !!(inputs.i &   0b100000);
+			this.inputs.melee   = !!(inputs.i &  0b1000000);
+			this.inputs.zoom    = !!(inputs.i & 0b10000000);
+		}
+		if(typeof inputs.w === "number"){
+			this.inputs.weapon = inputs.w;
+		}
 	}
 	/**
 	Set all of the position and movement of the character from the data object
 	@method setFromData
-	@param {Object} data   Data setting the state of the character
-	@param {Vec2}   data.o Orientation of the character
-	@param {Vec3}   data.p Position of the character
-	@param {Vec3}   data.v Velocity of the character
-	@param {Number} data.i Array of bits:
+	@param {Object} [data]   Data setting the state of the character
+	@param {Vec2}   [data.o] Orientation of the character
+	@param {Vec3}   [data.p] Position of the character
+	@param {Vec3}   [data.v] Velocity of the character
+	@param {Number} [data.i] Array of bits:
 		[0] is grounded
 		[1] is crounched
 		[2] is jumping
 		[3] is firing
 		[4] is reloading
 	*/
-	setFromData(data){
+	setStateFromJSON(data){
 		// if data is empty, there is nothing to do
-		if(typeof data !== "object") return;
-		// we update the orientation of the character
-		this.setLook(data.o);
-
-		// if the position is set
-		if(HERSTAL.UTIL.isVector3(data.p)){
-			this.body.position.copy(data.p);
-		}
-		// if the velocity is set
-		if(HERSTAL.UTIL.isVector3(data.v)){
-			this.body.velocity.copy(data.v);
-		}
-		// set the state of the character
-		/*jshint eqnull: true*/
-		if(data.i != null){
-			this.isGrounded  = !!(data.i &  0b1);
-			this.isCrounched = !!(data.i & 0b10);
+		if(typeof data === "object" && data != null){
+			// we update the orientation of the character
+			if(HERSTAL.UTIL.isVector2(data.o)){
+				this.setLook(data.o);
+			}
+			// if the position is set
+			if(HERSTAL.UTIL.isVector3(data.p)){
+				this.body.position.copy(data.p);
+			}
+			// if the velocity is set
+			if(HERSTAL.UTIL.isVector3(data.v)){
+				this.body.velocity.copy(data.v);
+			}
+			// set the state of the character
+			if(typeof data.i === "number"){
+				this.isGrounded  = !!(data.i &  0b1);
+				this.isCrounched = !!(data.i & 0b10);
+			}
 		}
 	}
 	/**
 	Read all of the position and movement of the character
 	and create a object out of them
 	*/
-	getData(){
+	getJSONFromState(){
 		return {
-			o : this.orientation,
+			o : {
+				x : this.orientation.x,
+				y : this.orientation.y,
+			},
 			p : {
 				x : this.body.position.x,
 				y : this.body.position.y,
@@ -231,7 +243,7 @@ class Character {
 				y : this.body.velocity.y,
 				z : this.body.velocity.z,
 			},
-			g  : this.isGrounded,
+			g : this.isGrounded,
 			c : this.isCrounched,
 		};
 	}
@@ -242,38 +254,33 @@ class Character {
 	Global update function of the character
 	*/
 	update(){
-		var inputs = this.inputs || {};
-
 		// where the character is looking at ?
-		this.setLook(inputs.orientation);
+		this.setLook(this.inputs.orientation);
 		// is the character on the ground ?
 		this.updateGround();
 		// in which direction the character is moving, is he jumping ?
-		this.updateMove(inputs.movement, inputs.jump);
+		this.updateMove(this.inputs.movement, this.inputs.jump);
 		// is the character crounching ?
-		this.updateCrounch(inputs.crounch);
+		this.updateCrounch(this.inputs.crounch);
 		// if the character is on a platform, we should record it's position
 		this.updatePlatform();
 		// we update the weapon the character is holding
-		this.setWeapon(inputs.weapon);
+		this.setWeapon(this.inputs.weapon);
 	}
 	/**
 	Allow the character to look around
 	calculation based on mouse delta is performed client side
 	*/
 	setLook( orientation ){
-		// if orientation is set
-		if(orientation){
-			var PI2 = Math.PI*2, hPI = Math.PI*0.5;
-			// we keep angle in the [ -2PI, 2PI ] interval
-			orientation.x %= PI2;
-			orientation.y %= PI2;
-			// we cap the angle on the Y-axis within [ -PI/2, PI/2 ] interval
-			     if(orientation.y >  hPI) orientation.y =  hPI;
-			else if(orientation.y < -hPI) orientation.y = -hPI;
-			// we apply the orientation
-			this.orientation = orientation;
-		}
+		// we keep angle in the [ -2PI, 2PI ] interval
+		orientation.x %= Math.PI2;
+		orientation.y %= Math.PI2;
+		// we cap the angle on the Y-axis within [ -PI/2, PI/2 ] interval
+		     if(orientation.y >  Math.HPI) orientation.y =  Math.HPI;
+		else if(orientation.y < -Math.HPI) orientation.y = -Math.HPI;
+		// we apply the orientation
+		this.orientation.x = orientation.x;
+		this.orientation.y = orientation.y;
 	}
 	/**
 	Allow to add more rotation to the character on the Y-axis
@@ -281,7 +288,7 @@ class Character {
 	addRotation( angle ){
 		// we add the angle on the Y-axis
 		this.orientation.x += angle;
-		this.orientation.x %= Math.PI*2;
+		this.orientation.x %= Math.PI2;
 	}
 	/**
 	Allow the character to move around
@@ -497,7 +504,7 @@ class Character {
 		// if the weapons array is empty
 		// or we haven't specified a weapon to switch to
 		// there is nothing to do
-		if(this.weapons.length === 0 && index == null) return;
+		if(this.weapons.length === 0 || typeof index !== "number") return;
 		// what will be the new weapon of the player ?
 		var newWeap = this.currentWeapon;
 		// if index is positive
@@ -509,7 +516,7 @@ class Character {
 			}
 		}else{
 			// if index==-1 : previous weapon, if index==-2 : next weapon
-			var incre = index == -1 ? -1 : +1;
+			var incre = index === -1 ? -1 : +1;
 			// we loop weapons.length times at max to avoid endless loop
 			for(var i=0, stop=false; i<this.weapons.length || stop; ++i){
 				// we increament or decreament the value

@@ -12,7 +12,7 @@ class Weapon {
 	@param {Number} [options.ammo] Number of ammo currently in the weapon
 	@param {Number} [options.maxAmmo] Max ammo of the weapon
 	@param {Number} [options.firerate] Number of shots per seconds
-	@param {Number} [options.recoil] Force at which the holder will be propelled back by the shot
+	@param {Number} [options.recoilForce] Force at which the holder will be propelled back by the shot
 	@param {Number} [options.filterGroup] Define the collision group of the weapon
 	@param {Number} [options.filterMask] Define the collision mask of the weapon
 	@param {Boolean} [options.notAcquired] Has the weapon not been acquired ?
@@ -37,6 +37,7 @@ class Weapon {
 			this.maxAmmo = options.maxAmmo;
 		}
 		this.firerate = options.firerate > 0 ? options.firerate : 60;
+		this.recoil   = options.recoilForce || null; // can be negative for dash
 		this.acquired = !options.notAcquired;
 
 		// which group and mask should we use for this weapon ?
@@ -49,8 +50,32 @@ class Weapon {
 	/**
 	Method called when the weapon is equiped and the player press fire1
 	@method fire
+	@return {Vec3} The direction the character is facing
 	*/
-	fire(){}
+	fire(){
+		// if we have defined a maximum ammo
+		if(this.maxAmmo > 0){
+			// we have still ammo, we remove a bit of it
+			if(this.ammo > 0) --this.ammo;
+			else return null; // no more ammo, cannot shoot
+		}
+
+		// direction the character is facing
+		var direction =
+			HERSTAL.UTIL.getForwardFromAngles(this.character.orientation);
+
+		// if we have setted a recoil force
+		if(typeof this.recoil === "number"){
+			// we get the force of the recoil
+			var force = direction.scale(-this.recoil),
+					body  = this.character.body;
+			// and we apply it on the body of the character
+			body.applyImpulse(force, body.position);
+		}
+
+		// we return the direction the character is facing
+		return direction;
+	}
 
 	/**
 	Method called when the weapon is equiped and the player press fire2

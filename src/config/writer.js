@@ -228,7 +228,7 @@ var eventHandler = function(e){
 					// we can hide the message
 					change_input.setVisible(false);
 					currentInput = null;
-					return;
+					return null;
 				case 46 : break; // if DEL, input will be NONE
 				default : keyData = {btn: keyCode};
 			}

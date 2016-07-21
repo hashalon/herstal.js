@@ -10,8 +10,6 @@ class CharacterRender {
 		this.worldRender = null;
 		this.character   = character;
 
-		this.character.characterRender = this;
-
 		this.geometry = null;
 		this.material = null;
 		this.mesh = new THREE.Mesh(this.geometry, this.material);

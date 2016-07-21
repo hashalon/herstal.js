@@ -49,15 +49,12 @@ class Character {
 		// if weapon array is null, currentWeapon is null
 		this.currentWeapon = this.weapons.length>0 ? 0 : null;
 
-		// characterRender used in HERSTAL.client
-		this.render = null;
-
 		// status of the character
 		this.health    = options.health    || 100;
 		this.maxHealth = options.maxHealth || 100;
 		this.armor     = options.armor;
 		this.maxArmor  = options.maxArmor;
-		this.isDead    = false;
+		this.isDead    = false; // the character is not dead yet
 		// movement of the character
 		this.moveSpeed    = options.moveSpeed    || 20;
 		this.crounchSpeed = options.crounchSpeed || 10;
@@ -164,7 +161,7 @@ class Character {
 	*/
 	setInputFromJSON(inputs){
 		// if inputs is empty, there is nothing to do
-		if(typeof inputs !== "object") return;
+		if(typeof inputs !== "object") return null;
 		this.inputs = {};
 
 		if(HERSTAL.UTIL.isVector2(inputs.o)){
@@ -386,7 +383,7 @@ class Character {
 						this.platform = null;
 					}
 					// we've found one contact point
-					return; // we don't need to check the others
+					return null; // we don't need to check the others
 				}
 			}
 		}
@@ -504,7 +501,7 @@ class Character {
 		// if the weapons array is empty
 		// or we haven't specified a weapon to switch to
 		// there is nothing to do
-		if(this.weapons.length === 0 || typeof index !== "number") return;
+		if(this.weapons.length === 0 || typeof index !== "number") return null;
 		// what will be the new weapon of the player ?
 		var newWeap = this.currentWeapon;
 		// if index is positive
@@ -569,8 +566,16 @@ class Character {
 		}
 	}
 
-	killed(callback){
-		callback();
+	/**
+	Remove the character from the world
+	@method die
+	*/
+	die(){
+		// we remove the body from the world
+		this.world.removeBody(this.body);
+		// we unlink the character from the player
+		this.player.character = null;
+		// we keep track of the body to generate the corpse client side
 	}
 
 

@@ -58,20 +58,60 @@ class Grenade extends HERSTAL.Projectile {
 			shape: shape,
 			velocity: velocity,
 			collisionFilterGroup: options.filterGroup || weapon.filterGroup,
-			collisionFilterMask:  options.filterMask  || weapon.filterMask,
+			// grenade shouldn't collide with characters /!\
+			collisionFilterMask:  options.filterMask  || HERSTAL.COLLISION.map.group,
 		});
 
 		// we add the body to the world
 		this.world.addBody(this.body);
 
+		//-- cannot use that because the grenade would collide with it's own character
 		// we add an event to detect new collisions
-		this.body.addEventListener("collide", (event) => {
+		/*this.body.addEventListener("collide", (event) => {
 			// if the grenade touch a character, it explodes
 			if(event.contact.body.character != null) this.isDestroyed = true;
-		});
+		});*/
 	}
 
-	// we don't need to extend update()
+	/**
+	Update the state of the grenade
+	@method update
+	*/
+	update(){
+		// get the destination point
+		var dest = this.body.position.vadd(this.body.velocity);
+		// check collision along the velocity vector
+		var ray = new CANNON.Ray(this.body.position, dest);
+
+		// we disable collisions with the character who fired the grenade
+		var charBody = this.weapon.character.body;   // we recover the character's body
+		var charMask = charBody.collisionFilterMask; // we store the mask of the character
+		charBody.collisionFilterMask = 0;            // we disable all collisions
+
+		// we disable collisions with the grenade too
+		var grenMask = this.body.collisionFilterMask; // we store the mask of the grenade
+		this.body.collisionFilterMask = 0;            // we disable all collisions
+
+		// cast the ray
+		var hasHit = ray.intersectWorld(this.world, this._raycastOpt);
+
+		// restore collisions for the character's body and the grenade's body
+		charBody.collisionFilterMask  = charMask;
+		this.body.collisionFilterMask = grenMask;
+
+		// if we hit something
+		if(hasHit){
+			var character = ray.result.body.character;
+			if(character != null){
+				// apply direct hit damage
+				character.addDamage(this.damage);
+				// and make the grenade explode
+				this.isDestroyed = true;
+			}
+		}
+		// apply default behavior
+		super.update();
+	}
 
 	/**
 	Return the position of the Projectile

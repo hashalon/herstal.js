@@ -153,13 +153,11 @@ HERSTAL.UTIL = {
 	Return a vector oriented according to the given angles
 	@method getForwardFromAngles
 	@param {Object} o Orientation horizontaly and verticaly
+	@return {Vec3} The direction given by those angles
 	*/
 	getForwardFromAngles: function(o){
-		return new CANNON.Vec3(
-			 Math.cos(o.x),
-			 Math.sin(o.y),
-			 Math.sin(o.x)
-		);
+		var y = Math.sin(o.y);
+		return new CANNON.Vec3(Math.cos(o.x) - y, y, Math.sin(o.x) - y);
 	},
 	/**
 	Return a Quaternion oriented by the given vectors
@@ -168,7 +166,7 @@ HERSTAL.UTIL = {
 	@param {Vec3} [up] The vector pointing up
 	*/
 	lookRotation(forward, up){
-		up = up || CANNON.Vec3.UP;
+		up = up || CANNON.Vec3.UNIT_Y;
 		var v2 = forward.unit();
 		var v0 = up.unit(); v0.cross(v2, v0).normalize();
 		var v1 = v2.cross(v0);

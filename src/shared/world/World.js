@@ -13,9 +13,6 @@ class World {
 		this.cannonWorld.gravity.set(0, -100, 0);
 		this.cannonWorld.defaultContactMaterial.friction = 0.1;
 
-		// worldRender used in HERSTAL client
-		this.render = null;
-
 		// we add the character material to this world
 		this.cannonWorld.addContactMaterial(
 			new CANNON.ContactMaterial(
@@ -65,11 +62,6 @@ class World {
 			character.world = this;
 			// we add its body to the cannonWorld
 			this.cannonWorld.addBody(character.body);
-
-			// if HERSTAL.client is defined
-			if( this.worldRender && character.characterModel ){
-				this.worldRender.addCharacterModel(character.characterModel);
-			}
 		}
 	}
 	/**
@@ -83,11 +75,6 @@ class World {
 		if(index > -1){
 			character.world = null;
 			this.cannonWorld.removeBody(character.body);
-
-			// if HERSTAL.client is defined
-			if( this.worldRender && character.characterModel ){
-				this.worldRender.removeCharacter(character.characterModel);
-			}
 		}
 	}
 }

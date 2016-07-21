@@ -28,6 +28,8 @@ class Rocket extends HERSTAL.Projectile {
 			HERSTAL.UTIL.getForwardFromAngles(orientation).scale(speed);
 
 		// special behavior:
+		// set the knockback force on direct hit (only applied on characters)
+		this.knockback = options.knockback || null;
 		// does the rocket pass through characters ?
 		this.isPiercing = options.isPiercing || false;
 		// does the rocket bounce on walls ?
@@ -43,15 +45,38 @@ class Rocket extends HERSTAL.Projectile {
 		var dest = this.position.vadd(this.direction);
 		// check collision forward
 		var ray = new CANNON.Ray(this.position, dest);
+
+		// to be sure the rocket doesn't hit the character who fired it
+		var body = this.weapon.character.body; // we recover the body
+		var mask = body.collisionFilterMask;   // we store its default mask
+		body.collisionFilterMask = 0;          // we disable all collisions
 		var hasHit = ray.intersectWorld(this.world, this._raycastOpt);
+		body.collisionFilterMask = mask;       // we restore collisions
+
+		// if we hit something
 		if(hasHit){
-			var character = ray.result.body.character;
-			if(character != null){
-				character.addDamage(this.damage);
+			// we recover the body hit by our raycast
+			var body = ray.result.body;
+
+			// if knockback is set and the body is dynamic
+			if(typeof this.knockback === "number"
+				&& body.type === CANNON.Body.DYNAMIC)
+			{
+				// knockback force to apply to the body
+				var force = this.direction.unit().scale(this.knockback);
+				// knockback the body
+				body.applyImpulse(force, ray.result.hitPointWorld);
+			}
+
+			// if the body is linked to a character
+			if(body.character != null){
+				// apply direct hit damage to the character
+				body.character.addDamage(this.damage);
 				// if piercing shots, the projectile is not
 				// destroyed  when passing through characters
 				if(!this.isPiercing) this.isDestroyed = true;
-			}else{
+
+			}else{ // the body is environemental
 				// can be reflected by walls
 				if(this.canReflect){
 					var norm = ray.result.hitNormalWorld;
@@ -62,7 +87,8 @@ class Rocket extends HERSTAL.Projectile {
 					);
 					// put the projectile at the position of impact
 					this.position = ray.result.hitPointWorld;
-				}else this.isDestroyed = true;
+				}else // cannot be reflected by walls
+					this.isDestroyed = true;
 			}
 		}
 		// apply default behavior

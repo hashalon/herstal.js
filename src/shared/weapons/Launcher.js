@@ -31,6 +31,15 @@ class Launcher extends HERSTAL.Weapon {
 	@method fire
 	*/
 	fire(){
+		// call default behavior, we don't care about the direction of the shoot
+		// but we care about if we have ammo or not
+		var direction = super.fire();
+
+		// if we have no more ammo
+		if(direction === null){
+			return null;
+		}
+
 		var proj = new this.projClass(
 			this, // this weapon
 			this.character.position,    // position of the emmiter of the gun

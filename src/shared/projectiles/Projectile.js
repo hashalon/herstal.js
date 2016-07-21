@@ -93,12 +93,13 @@ class Projectile {
 	}
 
 	/**
-
+	@method _explodeOnBody @private
+	@param {Body} The body to apply the explosion effect on
 	*/
 	_explodeOnBody(body){
 		// if the body is dynamic
 		if(body.type === CANNON.Body.DYNAMIC){
-			
+
 			// we define two points to cast a ray
 			var p1 = this.Position,
 					p2 = body.position;
@@ -120,7 +121,7 @@ class Projectile {
 						// we normalize direction and scale it up
 						direction.normalize();
 						direction.mult(this.explForce, direction);
-						body.applyImpulse(direction, p1);
+						body.applyImpulse(direction, ray.result.hitPointWorld);
 					}
 
 					// if we specified damages

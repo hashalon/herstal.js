@@ -92,7 +92,7 @@ CurrentPlayer.INPUTS = {
     mouse: {},
     keyboard: {}
 };
-// we fill the INPUTS with the content of CooMan
+// we fill the INPUTS with the content of the player preferences
 for( var id in HERSTAL.CONFIG.preferences ){
     var pref = HERSTAL.CONFIG.preferences[id];
     // if the preference is an object

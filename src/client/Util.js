@@ -16,76 +16,7 @@ Math.randomRange = function(min, max){
 	return min + Math.random() * (max - min);
 }
 
-// adds function for CANNON.js objects
-/**
-Get the angle between this vector and the given vector.
-@method getAngle
-@param {Vec3} v Vector to get the angle from
-@return {Number} the angle between both vectors
-*/
-CANNON.Vec3.prototype.getAngle = function(v){
-	// we need two vectors
-	var v1 = this.clone();
-	var v2 = v ? new CANNON.Vec3(v.x, v.y, v.z) : CANNON.Vec3.UNIT_Y;
-
-	// acos(dot(v1 / norm(v1), v2 / norm(v2)))
-	v1.normalize();
-	v2.normalize();
-	return Math.acos( v1.dot(v2) );
-};
-
-// adds function to Array objects
-/**
-Add element only if it's not already present in the list
-*/
-Array.prototype.addElement = function(e){
-	var index = this.indexOf(e);
-	// if the element is not already in the list
-	// we add it to the end of the list
-	if(index == -1){
-		this[this.length] = e;
-		// we return the position of the element in the array
-		return this.length-1;
-	}
-	return -1; // the element was already in the array
-};
-/**
-Remove an element from the list
-*/
-Array.prototype.removeElement = function(e){
-	var index = this.indexOf(e);
-	// if the element is in the list
-	// we can remove it
-	if(index > -1) this.splice(index, 1);
-	// we return the old position of the element in the array
-	return index;
-};
-
-HERSTAL.UTIL = {
-	/**
-	Convert a vector to array
-	@method vectorToArray @deprecated
-	@param {Object} vec A 2D Vector or 3D Vector
-	@return {Array} the array
-	*/
-	vectorToArray: function(vec){
-		// if it has z component, return an array of length 3
-		if(vec.z != null) return [vec.x, vec.y, vec.z];
-		// otherwise return an array of length 2
-		return [vec.x, vec.y];
-	},
-	/**
-	Convert an array into a vector
-	@method arrayToVector @deprecated
-	@param {Array} the array to convert
-	@return {Object | Vec3} The vector 2D or 3D
-	*/
-	arrayToVector: function(arr){
-		// if array is longer than 2, return a cannon.vec3
-		if(arr.length > 2) return new CANNON.Vec3(arr[0], arr[1], arr[2]);
-		// otherwise return a object
-		return {x: arr[0], y: arr[1]};
-	},
+UTIL = {
 	/**
 	Return true if the given object is a 2D Vector
 	@method isVector2
@@ -110,6 +41,7 @@ HERSTAL.UTIL = {
 		}
 		return false;
 	},
+	/* TODO use THREE instead of CANNON */
 	/**
 	Return a normalized vector pointing at the left of the quaternion
 	@method getLeft

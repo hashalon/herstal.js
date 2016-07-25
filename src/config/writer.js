@@ -1,3 +1,7 @@
+if(!window.HERSTAL) throw new Error("herstal.config hasn't been added to the document");
+
+var CONFIG = window.HERSTAL.CONFIG;
+
 function getLabelForKey(key){
 	if( key ){ // if key is not null
 		if( key.btn != null ){ // if the value of key is not null
@@ -111,27 +115,24 @@ function getLabelForKey(key){
 }
 
 function initForm(){
-	// we need to read user preferences
-	if(window.HERSTALprefs){
-		// initialize the value of each button
-		for( var index in HERSTALprefs.preferences ){
-			var option = HERSTALprefs.preferences[index];
-			var line = document.getElementById(index);
-			if(line){
-				var input = line.getElementsByClassName("hrs-input")[0];
-				if(input){
-					if(typeof option === "object"){ // {btn: keyCode}
-						// we display the name of the key
-						// instead of it's keycode
-						input.value = getLabelForKey(option);
-						input.data  = option;
-					}else if(input.type === "checkbox"){ // boolean
-						// only the presence of the property matters
-						if(option) input.checked = true;
-						else delete input.checked;
-					}else{ // text field, etc...
-						input.value = option;
-					}
+	// initialize the value of each button
+	for( var index in CONFIG.preferences ){
+		var option = CONFIG.preferences[index];
+		var line = document.getElementById(index);
+		if(line){
+			var input = line.getElementsByClassName("hrs-input")[0];
+			if(input){
+				if(typeof option === "object"){ // {btn: keyCode}
+					// we display the name of the key
+					// instead of it's keycode
+					input.value = getLabelForKey(option);
+					input.data  = option;
+				}else if(input.type === "checkbox"){ // boolean
+					// only the presence of the property matters
+					if(option) input.checked = true;
+					else delete input.checked;
+				}else{ // text field, etc...
+					input.value = option;
 				}
 			}
 		}
@@ -143,7 +144,7 @@ initForm();
 function resetPreferences(){
 	var lang = navigator.language || navigator.languages[0];
 	lang = lang.substr(0,2); // only first two characters
-	HERSTALprefs.reset(lang);
+	CONFIG.reset(lang);
 	initForm();
 	// we need to update the jscolor inputs
 	var jscolorInputs = document.getElementsByClassName("jscolor");
@@ -156,7 +157,7 @@ function resetPreferences(){
 }
 
 function savePreferences(){
-	var prefs = HERSTALprefs.preferences;
+	var prefs = CONFIG.preferences;
 	for( var index in prefs ){
 		// we recover the input line
 		var line = document.getElementById(index);
@@ -173,8 +174,7 @@ function savePreferences(){
 			}
 		}
 	}
-	// if we can save, we save the preferences of the user
-	if(window.HERSTALprefs) HERSTALprefs.save();
+	CONFIG.save();
 }
 
 // keep track of the message that ask the user to enter a key input

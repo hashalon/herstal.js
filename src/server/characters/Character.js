@@ -120,7 +120,7 @@ class Character {
 
 		// we recover the filter based on the team of the player
 		this.team = options.team || 0;
-		var filter = HERSTAL.TEAM.getCollisionFilter(this.team);
+		var filter = TEAM.getCollisionFilter(this.team);
 
 		// we create the body collider of the character
 		this.body = new CANNON.Body({
@@ -146,9 +146,9 @@ class Character {
 	Store all of the inputs set over JSON
 	@method setFromInput
 	@param {Object} [inputs]   Inputs loaded from JSON
-	@param {Vec2}   [inputs.o] Orientation of the character
-	@param {Vec2}   [inputs.m] Movement of the character
-	@param {Number} [inputs.i] Array of bits:
+	@param {Vec2}   [inputs.orient] Orientation of the character
+	@param {Vec2}   [inputs.move] Movement of the character
+	@param {Number} [inputs.inputs] Array of bits:
 		[0] jump
 		[1] crounch
 		[2] fire1
@@ -157,67 +157,32 @@ class Character {
 		[5] reload
 		[6] melee
 		[7] zoom
-	@param {Number} inputs.w Weapon selection
+	@param {Number} inputs.weap Weapon selection
 	*/
 	setInputFromJSON(inputs){
 		// if inputs is empty, there is nothing to do
 		if(typeof inputs !== "object") return null;
 		this.inputs = {};
 
-		if(HERSTAL.UTIL.isVector2(inputs.o)){
-			this.inputs.orientation = inputs.o;
+		if(UTIL.isVector2(inputs.orient)){
+			this.inputs.orientation = inputs.orient;
 		}
-		if(HERSTAL.UTIL.isVector2(inputs.m)){
-			this.inputs.movement = inputs.m;
+		if(UTIL.isVector2(inputs.move)){
+			this.inputs.movement = inputs.move;
 		}
-		if(typeof inputs.i === "number"){
-			this.inputs.jump    = !!(inputs.i &        0b1);
-			this.inputs.crounch = !!(inputs.i &       0b10);
-			this.inputs.fire1   = !!(inputs.i &      0b100);
-			this.inputs.fire2   = !!(inputs.i &     0b1000);
-			this.inputs.use     = !!(inputs.i &    0b10000);
-			this.inputs.reload  = !!(inputs.i &   0b100000);
-			this.inputs.melee   = !!(inputs.i &  0b1000000);
-			this.inputs.zoom    = !!(inputs.i & 0b10000000);
+		if(typeof inputs.inputs === "number"){
+			var i = inputs.inputs;
+			this.inputs.jump    = !!(i &        0b1);
+			this.inputs.crounch = !!(i &       0b10);
+			this.inputs.fire1   = !!(i &      0b100);
+			this.inputs.fire2   = !!(i &     0b1000);
+			this.inputs.use     = !!(i &    0b10000);
+			this.inputs.reload  = !!(i &   0b100000);
+			this.inputs.melee   = !!(i &  0b1000000);
+			this.inputs.zoom    = !!(i & 0b10000000);
 		}
-		if(typeof inputs.w === "number"){
-			this.inputs.weapon = inputs.w;
-		}
-	}
-	/**
-	Set all of the position and movement of the character from the data object
-	@method setFromData
-	@param {Object} [data]   Data setting the state of the character
-	@param {Vec2}   [data.o] Orientation of the character
-	@param {Vec3}   [data.p] Position of the character
-	@param {Vec3}   [data.v] Velocity of the character
-	@param {Number} [data.i] Array of bits:
-		[0] is grounded
-		[1] is crounched
-		[2] is jumping
-		[3] is firing
-		[4] is reloading
-	*/
-	setStateFromJSON(data){
-		// if data is empty, there is nothing to do
-		if(typeof data === "object" && data != null){
-			// we update the orientation of the character
-			if(HERSTAL.UTIL.isVector2(data.o)){
-				this.setLook(data.o);
-			}
-			// if the position is set
-			if(HERSTAL.UTIL.isVector3(data.p)){
-				this.body.position.copy(data.p);
-			}
-			// if the velocity is set
-			if(HERSTAL.UTIL.isVector3(data.v)){
-				this.body.velocity.copy(data.v);
-			}
-			// set the state of the character
-			if(typeof data.i === "number"){
-				this.isGrounded  = !!(data.i &  0b1);
-				this.isCrounched = !!(data.i & 0b10);
-			}
+		if(typeof inputs.weap === "number"){
+			this.inputs.weapon = inputs.weap;
 		}
 	}
 	/**
@@ -225,23 +190,27 @@ class Character {
 	and create a object out of them
 	*/
 	getJSONFromState(){
+		var state = 0;
+		if(this.isGrounded)  state |=  0b1;
+		if(this.isCrounched) state |= 0b10;
+
 		return {
-			o : {
+			orient : {
 				x : this.orientation.x,
 				y : this.orientation.y,
 			},
-			p : {
+			pos : {
 				x : this.body.position.x,
 				y : this.body.position.y,
 				z : this.body.position.z,
 			},
-			v : {
+			vel : {
 				x : this.body.velocity.x,
 				y : this.body.velocity.y,
 				z : this.body.velocity.z,
 			},
-			g : this.isGrounded,
-			c : this.isCrounched,
+			state : state,
+			weap  : this.currentWeapon,
 		};
 	}
 

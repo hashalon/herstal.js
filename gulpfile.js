@@ -11,46 +11,19 @@ var gulp   = require('gulp'),
 	uglify = require('gulp-uglify'),
 	srcmap = require('gulp-sourcemaps');
 
-gulp.task('build-shared', function() {
-	var
-	prepend = "(function (){\n",
-	append  = "\n})();",
-	srcs = [
-		"src/shared/Init.js",
-		"src/shared/Util.js",
-		"src/shared/Team.js",
-		"src/shared/weapons/Weapon.js",
-		"src/shared/projectiles/Projectile.js",
-		"src/shared/**/*.js",
-	],
-	dist = "build",
-	name = "herstal.shared.js",
-	min  = "herstal.shared.min.js";
-
-	// extended file
-	var file = gulp.src(srcs)
-		.pipe(concat(name))
-		.pipe(insert.wrap(prepend, append))
-		.pipe(babel({
-			presets : ['es2015']
-		}))
-		.pipe(gulp.dest(dist));
-
-	// minified file
-	var min_file = file.pipe(rename(min))
-		.pipe(srcmap.init())
-		.pipe(uglify())
-		.pipe(srcmap.write('./'))
-		.pipe(gulp.dest(dist));
-});
-
 gulp.task('build-server', function() {
 	var
 	prepend = "(function (){\n",
 	append  = "\n})();",
 	srcs = [
 		"src/server/Init.js",
+		"src/server/Server.js",
+		"src/server/Util.js",
+		"src/server/Team.js",
+		"src/server/weapons/Weapon.js",
+		"src/server/projectiles/Projectile.js",
 		"src/server/**/*.js",
+		"src/server/End.js",
 	],
 	dist = "build",
 	name = "herstal.server.js",
@@ -72,6 +45,7 @@ gulp.task('build-client', function() {
 	append  = "\n})();",
 	srcs = [
 		"src/client/Init.js",
+		"src/client/Client.js",
 		"src/client/**/*.js",
 	],
 	dist = "build",
@@ -96,19 +70,17 @@ gulp.task('build-client', function() {
 
 });
 
-gulp.task('min-cooman', function(){
+gulp.task('build-config', function(){
 	var
 	srcs = [
-		"gui/preferences/cookieReader.js",
-		"gui/preferences/cookieManager.js",
-		"gui/preferences/userPreferences.js",
+		"src/config/reader.js",
+		"src/config/writer.js",
 	],
 	min = [
-		"cookieReader.min.js",
-		"cookieManager.min.js",
-		"userPreferences.min.js",
+		"reader.min.js",
+		"writer.min.js",
 	],
-	dist = "gui/preferences";
+	dist = "build";
 	for( var i=0; i<srcs.length; ++i ){
 		var file = gulp.src(srcs[i])
 			.pipe(rename(min[i]))
@@ -120,5 +92,5 @@ gulp.task('min-cooman', function(){
 });
 
 gulp.task('default', [
-	'build-shared', 'build-server', 'build-client'
+	'build-server', 'build-client', 'build-config',
 ]);

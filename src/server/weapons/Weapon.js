@@ -42,7 +42,7 @@ class Weapon {
 
 		// which group and mask should we use for this weapon ?
 		var team = options.team || this.character.team;
-		var filter = HERSTAL.TEAM.getCollisionFilter(team);
+		var filter = TEAM.getCollisionFilter(team);
 		this.filterGroup = options.filterGroup || filter.group;
 		this.filterMask  = options.filterMask  || filter.mask ;
 	}
@@ -61,8 +61,7 @@ class Weapon {
 		}
 
 		// direction the character is facing
-		var direction =
-			HERSTAL.UTIL.getForwardFromAngles(this.character.orientation);
+		var direction = UTIL.getForwardFromAngles(this.character.orientation);
 
 		// if we have setted a recoil force
 		if(typeof this.recoil === "number"){

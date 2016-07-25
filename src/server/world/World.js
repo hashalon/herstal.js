@@ -57,7 +57,7 @@ class World {
 		// if the object is a character
 		if(character instanceof Character){
 			// we keep track of it in a list
-			this.characters.addElement(character);
+			// TODO this.characters.adElement(character);
 			// the character is part of this world
 			character.world = this;
 			// we add its body to the cannonWorld
@@ -70,7 +70,7 @@ class World {
 	@param {Character} character The character to remove
 	*/
 	removeCharacter(character){
-		var index = this.characters.removeElement( character );
+		// TODO var index = this.characters.removElement( character );
 		// if the character was in the array
 		if(index > -1){
 			character.world = null;

@@ -45,7 +45,7 @@ class Grenade extends HERSTAL.Projectile {
 		}
 		// we need a velocity for our projectile
 		var speed = options.speed || 20;
-		var velocity = HERSTAL.UTIL.getForward(orientation).scale(speed);
+		var velocity = UTIL.getForward(orientation).scale(speed);
 		// we need the orientation of the projectile as a quaternion
 		var quat = new CANNON.Quaternion();
 		quat.setFromEuler(orientation.x, orientation.y, 0, 'YXZ');

@@ -55,10 +55,10 @@
 								<td class="hrs-label" >User Model</td>
 								<td>
 									<select class="hrs-input form-control full-w" name="model" >
-										<option value= "default">Default </option>
-										<option value= "monster">Monster </option>
-										<option value=   "robot">Robot   </option>
-										<option value="skeleton">Skeleton</option>
+										<option value="0">Default </option>
+										<!--option value="1">Monster </option>
+										<option value="2">Robot   </option>
+										<option value="3">Skeleton</option-->
 									</select>
 								</td>
 							</tr>
@@ -151,6 +151,10 @@
 										<td class="hrs-label" >Invert Camera Y-axis</td>
 										<td><input class="hrs-input" type="checkbox" name="invertY" /></td>
 									</tr>
+									<tr id="weaponAutoswitch" >
+										<td class="hrs-label" >Auto Switch Weapon</td>
+										<td><input class="hrs-input" type="checkbox" name="weaponAutoSwitch" /></td>
+									</tr>
 									<tr id="moveF" >
 										<td class="hrs-label" >Move Forward</td>
 										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="moveF" /></td>
@@ -191,14 +195,14 @@
 										<td class="hrs-label" >Reload</td>
 										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="reload" /></td>
 									</tr>
-									<tr id="melee" >
-										<td class="hrs-label" >Melee</td>
-										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="melee" /></td>
-									</tr>
 								</table>
 							</div>
 							<div class="col-lg-6" >
 								<table class="table table-stripped">
+									<tr id="melee" >
+										<td class="hrs-label" >Melee</td>
+										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="melee" /></td>
+									</tr>
 									<tr id="zoom" >
 										<td class="hrs-label" >Zoom</td>
 										<td><input class="hrs-input btn btn-default btn-sm full-w" onclick="onBtnPressed(this)" type="button" name="zoom" /></td>
@@ -269,7 +273,7 @@
 			(ESC to cancel, DEL to clear)
 		</div>
 		<!-- Allow to manage user preferences through localStorage -->
-		<script src="../../src/preferences/reader.js"></script>
-		<script src="../../src/preferences/writer.js"></script>
+		<script src="../../src/config/reader.js"></script>
+		<script src="../../src/config/writer.js"></script>
 	</body>
 </html>

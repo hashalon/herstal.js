@@ -24,8 +24,7 @@ class Rocket extends HERSTAL.Projectile {
 
 		// we need the speed of the projectile
 		var speed = options.speed || 20;
-		this.direction =
-			HERSTAL.UTIL.getForwardFromAngles(orientation).scale(speed);
+		this.direction = UTIL.getForwardFromAngles(orientation).scale(speed);
 
 		// special behavior:
 		// set the knockback force on direct hit (only applied on characters)
@@ -110,7 +109,7 @@ class Rocket extends HERSTAL.Projectile {
 	@return {Quaternion} The orientation in space
 	*/
 	get Orientation(){
-		return HERSTAL.UTIL.lookRotation(this.direction);
+		return UTIL.lookRotation(this.direction);
 	}
 }
 HERSTAL.Rocket = Rocket;

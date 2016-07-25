@@ -2,6 +2,8 @@
 Store collisions group and mask for each team
 collision if : (A.group & B.mask) && (B.group & A.mask)
 */
+// collision is accessible to be able to redefine
+// collision filters and add more teams
 var COLLISION = HERSTAL.COLLISION = [
 	{ group: 0b000010, mask: 0b111111 }, // NONE
 	{ group: 0b000100, mask: 0b111011 }, // TEAM 1
@@ -15,7 +17,7 @@ COLLISION.map =
 /**
 Manage teams
 */
-var TEAM = HERSTAL.TEAM = {
+var TEAM = {
 	/**
 	@method getCollisionFilter
 	@param {Number} id The id of the team (0 for NONE)

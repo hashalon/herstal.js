@@ -15,7 +15,7 @@ WorldRender.prototype.constructor = HERSTAL.WorldRender = WorldRender;
 
 WorldRender.prototype.addCharacterModel = function( characterModel ){
 	// since we are in a web browser, we can use the method addElement defined in HERSTAL shared
-	this.characterModels.addElement(characterModel);
+	// TODO this.characterModels.adElement(characterModel);
 	// the characterModel shoudl in which world it is
 	characterModel.worldRender = this;
 	// we add the model itself to the scene
@@ -23,7 +23,7 @@ WorldRender.prototype.addCharacterModel = function( characterModel ){
 };
 
 WorldRender.prototype.removeCharacterModel = function( characterModel ){
-	var index = this.characterModels.removeElement( characterModel );
+	// TODO var index = this.characterModels.removElement( characterModel );
 	// if the character was in the array
 	if(index > -1){
 		characterModel.worldRender = null;

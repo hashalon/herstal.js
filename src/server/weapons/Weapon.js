@@ -17,7 +17,7 @@ class Weapon {
 	@param {Number} [options.filterMask] Define the collision mask of the weapon
 	@param {Boolean} [options.notAcquired] Has the weapon not been acquired ?
 	*/
-	constructor(name, character, options){
+	constructor(name, controllable, options){
 		options = options || {};
 
 		// id of the weapon for multiplayer identification
@@ -25,9 +25,9 @@ class Weapon {
 
 		// name of the weapon and character using it
 		this.name      = name;
-		this.character = character;
+		this.controllable = controllable;
 		// world in which the weapon exists
-		this.world = character.world;
+		this.world = controllable.world;
 
 		// damage dealt by the weapon if raycast or too close range
 		this.damage = options.damage || 0;
@@ -61,13 +61,13 @@ class Weapon {
 		}
 
 		// direction the character is facing
-		var direction = UTIL.getForwardFromAngles(this.character.orientation);
+		var direction = UTIL.getForwardFromAngles(this.controllable.Orientation);
 
 		// if we have setted a recoil force
 		if(typeof this.recoil === "number"){
 			// we get the force of the recoil
 			var force = direction.scale(-this.recoil),
-					body  = this.character.body;
+					body  = this.controllable.Body;
 			// and we apply it on the body of the character
 			body.applyImpulse(force, body.position);
 		}

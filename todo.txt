@@ -1,0 +1,9 @@
+use
+Number.MIN_SAFE_INTEGER
+Number.MAX_SAFE_INTEGER
+Number.isSafeInteger()
+for setting up id of projectiles, characters and others
+
+so we keep ids in the given interval
+[-9007199254740991 , 9007199254740991]
+we can start at 0 because it is unlikely we would reach 9007199254740991 in a regular game

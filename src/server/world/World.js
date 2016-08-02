@@ -6,11 +6,15 @@ class World {
 	/**
 	@constructor
 	*/
-	constructor(){
+	constructor(name, options){
+		options = options || {};
 		this.step = 1/HERSTAL.__FPS;
 
+		name = name || "level"; //name is used for the navMesh too
+		this.name = name;
+
 		this.cannonWorld = new CANNON.World();
-		this.cannonWorld.gravity.set(0, -100, 0);
+		this.cannonWorld.gravity.set(0, -(options.gravity || 100), 0);
 		this.cannonWorld.defaultContactMaterial.friction = 0.1;
 
 		// we add the character material to this world
@@ -25,11 +29,22 @@ class World {
 			)
 		);
 
+		// contains a list of convex shapes to define a navMesh for AIs
+		if(PATROL != null && options.navMeshPath != null){
+			jsonLoader.load(options.navMeshPath, function(geometry, materials){
+				var zoneNodes = PATROL.buildNodes(geometry);
+				PATROL.setZoneData(name, zoneNodes);
+				// https://github.com/nickjanssen/PatrolJS
+			});
+		}
+
+		/*
 		this.players     = [];
 		this.characters  = [];
 		this.weapons     = [];
 		this.projectiles = [];
 		this.mapElements = [];
+		*/
 	}
 
 	/**

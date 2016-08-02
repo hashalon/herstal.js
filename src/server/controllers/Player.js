@@ -2,20 +2,27 @@
 Player informations for both server and client
 @class Player
 */
-class Player {
+class Player extends HERSTAL.Controller{
 	/**
 	@constructor
 	@param {Number} id The id of the player
 	@param {String} name The name of the player
 	@param {Object} options Configuration of the player
 	*/
-	constructor(options){
+	constructor(team, options){
 		options = options || {};
+		super(team);
 
 		// general identification of the player
-		this.id    = Player.idCounter++;
-	  this.name  = typeof options.name === "string" ? options.name : "unnamed";
-		this.team  = typeof options.team === "number" ? options.team : 0;
+		this.id = Player.idCounter++;
+		// if player counter is not safe anymore
+		if(!Number.isSafeInteger(Player.idCounter)){
+			// revert to the minimal safe integer
+			Player.idCounter = Number.MIN_SAFE_INTEGER;
+		}
+		// name of the player
+		this.name  = typeof options.name === "string" ? options.name : "unnamed";
+		// model to use
 		this.model = options.model || 0;
 
 		// select the color to use
@@ -24,9 +31,49 @@ class Player {
 
 		// does the character switch of weapon on pickup
 		this.weaponAutoSwitch = !!options.weaponAutoSwitch;
+	}
+	/**
+	Store all of the inputs set over JSON
+	@method setFromInput
+	@param {Object} [inputs]   Inputs loaded from JSON
+	@param {Vec2}   [inputs.orient] Orientation of the character
+	@param {Vec2}   [inputs.move] Movement of the character
+	@param {Number} [inputs.inputs] Array of bits:
+		[0] jump
+		[1] crounch
+		[2] fire1
+		[3] fire2
+		[4] use
+		[5] reload
+		[6] melee
+		[7] zoom
+	@param {Number} inputs.weap Weapon selection
+	*/
+	setInputFromJSON(inputs){
+		// if inputs is empty, there is nothing to do
+		if(typeof inputs !== "object") return null;
+		this.inputs = {};
 
-		// the character of the player
-		this.character = null;
+		if(UTIL.isVector2(inputs.orient)){
+			this.inputs.orientation = inputs.orient;
+		}
+		if(UTIL.isVector2(inputs.move)){
+			this.inputs.movement = inputs.move;
+		}
+		if(typeof inputs.inputs === "number"){
+			var i = inputs.inputs;
+			this.inputs.jump    = !!(i &        0b1);
+			this.inputs.crounch = !!(i &       0b10);
+			this.inputs.fire1   = !!(i &      0b100);
+			this.inputs.fire2   = !!(i &     0b1000);
+			this.inputs.use     = !!(i &    0b10000);
+			this.inputs.reload  = !!(i &   0b100000);
+			this.inputs.melee   = !!(i &  0b1000000);
+			this.inputs.zoom    = !!(i & 0b10000000);
+		}
+		if(typeof inputs.weap === "number"){
+			this.inputs.weapon = inputs.weap;
+		}
 	}
 	/**
 	@method createCharacter
@@ -35,11 +82,11 @@ class Player {
 	@return {Character} The character to add to the map
 	*/
 	createCharacter(position, orientation){
-		this.character = new Character(this, position, orientation, {
+		this.controllable = new Character(this, position, orientation, {
 			team: this.team,
 		});
 		// we return the character
-		return this.character;
+		return this.controllable;
 	}
 }
 HERSTAL.Player = Player;

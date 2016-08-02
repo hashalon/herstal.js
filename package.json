@@ -41,7 +41,7 @@
     "uglify-js": "latest"
   },
   "dependencies": {
-    "cannon": "latest",
+    "cannon": "^0.6.2",
     "lodash": "^4.13.1",
     "socket.io": "latest",
     "three": "latest"

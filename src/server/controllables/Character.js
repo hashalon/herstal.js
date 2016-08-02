@@ -1,49 +1,50 @@
 /**
 Base class for all characters
-@class Character
+@class Character @extends Controllable
 */
-class Character {
+class Character extends HERSTAL.Controllable{
 	/**
 	Create a character for the player at the given position
 	@constructor
-	@param {Player} player   Player which will be represented by the character
+	@param {Controller} controller The controller controlling the character
 	@param {Vec3}   position Foot position of the character
 	@param {Number} orientation Angle of the character at start
 	@param {Object} [options] Optional configurations
-	@param {Number} [options.health] The health of the character
-	@param {Number} [options.maxHealth] The maximum health of the character (if < 0, no capping)
-	@param {Number} [options.armor] The armor of the character (if null, no armor)
-	@param {Number} [options.maxArmo]r The maximum armor of the character (if null, no capping)
-	@param {Number} [options.moveSpeed] The speed of the character when walking
-	@param {Number} [options.crounchSpeed] The speed of the character when crounched
-	@param {Number} [options.jumpForce] The force applied to the character when jumping
-	@param {Number} [options.mass] The mass of the character
-	@param {Number} [options.fullWidth] The width of the character
-	@param {Number} [options.fullHeight] The full height of the character when standing up
+	@param {Number} [options.health]        The health of the character
+	@param {Number} [options.maxHealth]     The maximum health of the character (if < 0, no capping)
+	@param {Number} [options.armor]         The armor of the character (if null, no armor)
+	@param {Number} [options.maxArmo]       The maximum armor of the character (if null, no capping)
+	@param {Number} [options.moveSpeed]     The speed of the character when walking
+	@param {Number} [options.crounchSpeed]  The speed of the character when crounched
+	@param {Number} [options.jumpForce]     The force applied to the character when jumping
+	@param {Number} [options.mass]          The mass of the character
+	@param {Number} [options.fullWidth]     The width of the character
+	@param {Number} [options.fullHeight]    The full height of the character when standing up
 	@param {Number} [options.fullCrounched] The full height of the character when crounched
-	@param {Number} [options.bodyWidth] The width of the character
-	@param {Number} [options.bodyHeight] The height of the body part of the character when standing up
+	@param {Number} [options.bodyWidth]     The width of the character
+	@param {Number} [options.bodyHeight]    The height of the body part of the character when standing up
 	@param {Number} [options.bodyCrounched] The height of the body part of the character when crounched
-	@param {Number} [options.headWidth] The width of the head part of the character
-	@param {Number} [options.headHeight] The height of the head part of the character
+	@param {Number} [options.headWidth]     The width of the head part of the character
+	@param {Number} [options.headHeight]    The height of the head part of the character
 	@param {Number} [options.team]
 		The team identificator of the character
 		Also set automatically filterGroup and filterMask
 	@param {Number} [options.filterGroup] Override the character filterGroup
-	@param {Number} [options.filterMask] Override the character filterMask
-	@param {Boolean} [options.noHead] Tells if the head part should have the isHead property
+	@param {Number} [options.filterMask]  Override the character filterMask
+	@param {Boolean} [options.noHead]     Tells if the head part should have the isHead property
 	*/
-	constructor(player, position, orientation, weapons, options){
+	constructor(controller, position, orientation, weapons, options){
 		options = options || {};
+		super(controller);
 
 		// id of the character for online identification
-		this.id = null;
-		// the world in which the character exists
-		this.world = null;
+		this.id = Character.idCounter++;
+		// id is not safe anymore
+		if(!Number.isSafeInteger(Character.idCounter)){
+			// we roll back to the minimal safe ID
+			Character.idCounter = Number.MIN_SAFE_INTEGER;
+		}
 
-		// the player controlling the character
-		this.player = player;
-		this.inputs = {};
 		// weapons of the character (max should be 10)
 		this.weapons = weapons || [];
 		// if weapon array is null, currentWeapon is null
@@ -117,9 +118,6 @@ class Character {
 		// shapes of the character
 		var head_shape = new CANNON.Box({ x: hw, y: hh, z: hw });
 		var body_shape = new CANNON.Box({ x: bw, y: bh, z: bw });
-
-		// we recover the filter based on the team of the player
-		this.team = options.team || 0;
 		var filter = TEAM.getCollisionFilter(this.team);
 
 		// we create the body collider of the character
@@ -131,87 +129,59 @@ class Character {
 			collisionFilterGroup: options.filterGroup || filter.group,
 			collisionFilterMask:  options.filterMask  || filter.mask ,
 		});
+		CANNON.Body.idFix();
+
 		// we add both shapes to the body
 		this.body.addShape(body_shape, body_pos); // shape 0 = body
 		this.body.addShape(head_shape, head_pos); // shape 1 = head
 
 		// we add more information to the bodies
-		this.body.character = this; // a reference to the character
+		this.body.controllable = this; // a reference to the character
 		if(!options.noHead) head_shape.isHead = true; // this shape is the head
 	}
 
 	/* SETTER GETTER */
-
 	/**
-	Store all of the inputs set over JSON
-	@method setFromInput
-	@param {Object} [inputs]   Inputs loaded from JSON
-	@param {Vec2}   [inputs.orient] Orientation of the character
-	@param {Vec2}   [inputs.move] Movement of the character
-	@param {Number} [inputs.inputs] Array of bits:
-		[0] jump
-		[1] crounch
-		[2] fire1
-		[3] fire2
-		[4] use
-		[5] reload
-		[6] melee
-		[7] zoom
-	@param {Number} inputs.weap Weapon selection
+	Return  the position of the Character
+	@method get Position
+	@return {Vec3} The position in space
 	*/
-	setInputFromJSON(inputs){
-		// if inputs is empty, there is nothing to do
-		if(typeof inputs !== "object") return null;
-		this.inputs = {};
-
-		if(UTIL.isVector2(inputs.orient)){
-			this.inputs.orientation = inputs.orient;
-		}
-		if(UTIL.isVector2(inputs.move)){
-			this.inputs.movement = inputs.move;
-		}
-		if(typeof inputs.inputs === "number"){
-			var i = inputs.inputs;
-			this.inputs.jump    = !!(i &        0b1);
-			this.inputs.crounch = !!(i &       0b10);
-			this.inputs.fire1   = !!(i &      0b100);
-			this.inputs.fire2   = !!(i &     0b1000);
-			this.inputs.use     = !!(i &    0b10000);
-			this.inputs.reload  = !!(i &   0b100000);
-			this.inputs.melee   = !!(i &  0b1000000);
-			this.inputs.zoom    = !!(i & 0b10000000);
-		}
-		if(typeof inputs.weap === "number"){
-			this.inputs.weapon = inputs.weap;
-		}
+	get Position(){
+		return this.body.position;
+	}
+  /**
+	Return the orientation of the Character
+	@method get Orientation
+	@return {Vec2} The orientation in space
+	*/
+	get Orientation(){
+		return this.orientation;
 	}
 	/**
-	Read all of the position and movement of the character
-	and create a object out of them
+	Return the collisionFilterMask of the Character
+	@method get FilterMask
+	@return {Number} The filter mask of the controllable
 	*/
-	getJSONFromState(){
-		var state = 0;
-		if(this.isGrounded)  state |=  0b1;
-		if(this.isCrounched) state |= 0b10;
-
-		return {
-			orient : {
-				x : this.orientation.x,
-				y : this.orientation.y,
-			},
-			pos : {
-				x : this.body.position.x,
-				y : this.body.position.y,
-				z : this.body.position.z,
-			},
-			vel : {
-				x : this.body.velocity.x,
-				y : this.body.velocity.y,
-				z : this.body.velocity.z,
-			},
-			state : state,
-			weap  : this.currentWeapon,
-		};
+	get FilterMask(){
+		return this.body.collisionFilterMask;
+	}
+	/**
+	Set the collisionFilterMask of the Controllable
+	@private To implement in extending classes
+	@method get FilterMask
+	@param {Number} mask The filter mask of the controllable
+	*/
+	set FilterMask(mask){
+		this.body.collisionFilterMask = mask;
+	}
+	/**
+	Return the main CANNON.body of the controllable
+	@private To implement in extending classes
+	@method get Body
+	@param {Body} The main CANNON Body
+	*/
+	get Body(){
+		return this.body;
 	}
 
 	/* UPDATE FUNCTIONS */
@@ -220,18 +190,23 @@ class Character {
 	Global update function of the character
 	*/
 	update(){
-		// where the character is looking at ?
-		this.setLook(this.inputs.orientation);
-		// is the character on the ground ?
-		this.updateGround();
-		// in which direction the character is moving, is he jumping ?
-		this.updateMove(this.inputs.movement, this.inputs.jump);
-		// is the character crounching ?
-		this.updateCrounch(this.inputs.crounch);
-		// if the character is on a platform, we should record it's position
-		this.updatePlatform();
-		// we update the weapon the character is holding
-		this.setWeapon(this.inputs.weapon);
+		if(this.controller !== null){
+			var inputs = this.controller.inputs || null;
+			if(inputs !== null){
+				// where the character is looking at ?
+				this.setLook(inputs.orientation);
+				// is the character on the ground ?
+				this.updateGround();
+				// in which direction the character is moving, is he jumping ?
+				this.updateMove(inputs.movement, inputs.jump);
+				// is the character crounching ?
+				this.updateCrounch(inputs.crounch);
+				// if the character is on a platform, we should record it's position
+				this.updatePlatform();
+				// we update the weapon the character is holding
+				this.setWeapon(inputs.weapon);
+			}
+		}
 	}
 	/**
 	Allow the character to look around
@@ -281,7 +256,7 @@ class Character {
 		var velocity = {
 			y: this.body.velocity.y,
 			x: (  axis.x*Math.cos(theta) -axis.y*Math.sin(theta) ) * speed,
-			z: ( -axis.x*Math.sin(theta) -axis.y*Math.cos(theta) ) * speed
+			z: ( -axis.x*Math.sin(theta) -axis.y*Math.cos(theta) ) * speed,
 		};
 
 		// if the player pressed the jump input
@@ -547,10 +522,42 @@ class Character {
 		// we keep track of the body to generate the corpse client side
 	}
 
+	/**
+	Read all of the position and movement of the character and create a object out of them
+	@method getJSONFromState
+	@return {Object} State of the character
+	*/
+	getJSONFromState(){
+		var state = 0;
+		if(this.isGrounded)  state |=  0b1;
+		if(this.isCrounched) state |= 0b10;
 
+		return {
+			orient : {
+				x : this.orientation.x,
+				y : this.orientation.y,
+			},
+			pos : {
+				x : this.body.position.x,
+				y : this.body.position.y,
+				z : this.body.position.z,
+			},
+			vel : {
+				x : this.body.velocity.x,
+				y : this.body.velocity.y,
+				z : this.body.velocity.z,
+			},
+			state : state,
+			weap  : this.currentWeapon,
+		};
+	}
 
 }
 HERSTAL.Character = Character;
+
+// id to assign to newly created character
+// go from 0 to Number.MAX_SAFE_INTEGER
+Character.idCount = 0;
 
 // we create a new material for the characters
 Character.MATERIAL = new CANNON.Material("character");

@@ -92,12 +92,12 @@ class Rifle extends HERSTAL.Weapon {
 		direction.scale(this.distance, direction);
 
 		// we create the two points for our raycast
-		var p1 = this.character.body.position;
+		var p1 = this.controllable.Position;
 		// destination point in space
 		var p2 = p1.vadd(direction);
 
 		// to be sure the pellets don't hit the character who fired them
-		var body = this.character.body;      // we recover the body
+		var body = this.controllable.Body;   // we recover the body
 		var mask = body.collisionFilterMask; // we store its default mask
 		body.collisionFilterMask = 0;        // we disable all collisions
 
@@ -161,8 +161,8 @@ class Rifle extends HERSTAL.Weapon {
 				body.applyImpulse(force, ray.result.hitPointWorld);
 			}
 			// if the body is the body of a character
-			if(this.damage > 0 && body.character != null){
-				body.character.addDamage(this.damage);
+			if(this.damage > 0 && body.controllable != null){
+				body.controllable.addDamage(this.damage);
 			}
 		}
 	}

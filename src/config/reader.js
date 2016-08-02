@@ -77,6 +77,7 @@ var CONFIG = HERSTAL.CONFIG = {
 
 		// set default display configuration
 		config.isFullscreen = false;
+		config.fov      =  100;
 		config.displayX = 1280;
 		config.displayY =  720;
 
@@ -86,7 +87,7 @@ var CONFIG = HERSTAL.CONFIG = {
 		config.volumeMusic  = 50;
 
 		// mouse controls
-		config.mouseS = 50; // mouse sensibility
+		config.mouseS  = 50; // mouse sensibility
 		config.invertX = false;
 		config.invertY = false;
 

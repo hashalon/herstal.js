@@ -61,6 +61,7 @@ class Grenade extends HERSTAL.Projectile {
 			// grenade shouldn't collide with characters /!\
 			collisionFilterMask:  options.filterMask  || HERSTAL.COLLISION.map.group,
 		});
+		CANNON.Body.idFix();
 
 		// we add the body to the world
 		this.world.addBody(this.body);
@@ -69,7 +70,7 @@ class Grenade extends HERSTAL.Projectile {
 		// we add an event to detect new collisions
 		/*this.body.addEventListener("collide", (event) => {
 			// if the grenade touch a character, it explodes
-			if(event.contact.body.character != null) this.isDestroyed = true;
+			if(event.contact.body.controllable != null) this.isDestroyed = true;
 		});*/
 	}
 
@@ -84,9 +85,9 @@ class Grenade extends HERSTAL.Projectile {
 		var ray = new CANNON.Ray(this.body.position, dest);
 
 		// we disable collisions with the character who fired the grenade
-		var charBody = this.weapon.character.body;   // we recover the character's body
-		var charMask = charBody.collisionFilterMask; // we store the mask of the character
-		charBody.collisionFilterMask = 0;            // we disable all collisions
+		var controllable = this.weapon.controllable; // we recover the controllable
+		var contMask = controllable.FilterMask;      // we store the mask of the controllable
+		controllable.FilterMask = 0;                 // we disable all collisions
 
 		// we disable collisions with the grenade too
 		var grenMask = this.body.collisionFilterMask; // we store the mask of the grenade
@@ -95,16 +96,16 @@ class Grenade extends HERSTAL.Projectile {
 		// cast the ray
 		var hasHit = ray.intersectWorld(this.world, this._raycastOpt);
 
-		// restore collisions for the character's body and the grenade's body
-		charBody.collisionFilterMask  = charMask;
+		// restore collisions for the controllable and the grenade's body
+		controllable.FilterMask       = contMask;
 		this.body.collisionFilterMask = grenMask;
 
 		// if we hit something
 		if(hasHit){
-			var character = ray.result.body.character;
+			var controllable = ray.result.body.controllable;
 			if(character != null){
 				// apply direct hit damage
-				character.addDamage(this.damage);
+				controllable.addDamage(this.damage);
 				// and make the grenade explode
 				this.isDestroyed = true;
 			}

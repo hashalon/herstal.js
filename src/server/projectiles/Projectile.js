@@ -14,7 +14,13 @@ class Projectile {
 		options = options || {};
 
 		// id of the projectile for online identification
-		this.id = null;
+		this.id = Projectile.idCounter++;
+		// id not safe ?
+		if(!Number.isSafeInteger(Projectile.idCounter)){
+			// roll back to minimal ID possible
+			Projectile.idCounter = Number.MIN_SAFE_INTEGER;
+		}
+
 		// the world in which the projectile move
 		this.world = weapon.world;
 
@@ -60,9 +66,7 @@ class Projectile {
 	@method get Position
 	@return {Vec3} The position in space
 	*/
-	get Position(){
-		return new CANNON.Vec3();
-	}
+	get Position(){}
 
   /**
 	Return the orientation of the Projectile
@@ -70,9 +74,7 @@ class Projectile {
 	@method get Orientation
 	@return {Quaternion} The orientation in space
 	*/
-	get Orientation(){
-		return new CANNON.Quaternion();
-	}
+	get Orientation(){}
 
 	/**
 	Destroy the projectile
@@ -125,13 +127,13 @@ class Projectile {
 					}
 
 					// if we specified damages
-					if(this.explDamage > 0 && body.character != null){
+					if(this.explDamage > 0 && body.controllable != null){
 						// full damage at explosion point
 						// less damage at perifery
 						var dmg = Math.sqrt(
 							this.sqrRadius - sqrDistance/this.sqrRadius
 						);
-						body.character.addDamage(dmg);
+						body.controllable.addDamage(dmg);
 					}
 				}
 
@@ -140,3 +142,5 @@ class Projectile {
 	}
 }
 HERSTAL.Projectile = Projectile;
+
+Projectile.idCounter = 0;

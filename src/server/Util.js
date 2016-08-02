@@ -34,6 +34,15 @@ CANNON.Vec3.prototype.getAngle = function(v){
 	return Math.acos( v1.dot(v2) );
 };
 
+// we add a function to keep Bodies ID as safe integers
+CANNON.Body.idFix = function(){
+	// if the Body id counter is not safe anymore
+	if(!Number.isSafeInteger(CANNON.Body.idCounter)){
+		// set the next ID as the minimal safe value
+		CANNON.Body.idCounter = Number.MIN_SAFE_INTEGER;
+	}
+};
+
 UTIL = {
 	/**
 	Return true if the given object is a 2D Vector

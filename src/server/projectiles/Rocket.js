@@ -46,11 +46,11 @@ class Rocket extends HERSTAL.Projectile {
 		var ray = new CANNON.Ray(this.position, dest);
 
 		// to be sure the rocket doesn't hit the character who fired it
-		var body = this.weapon.character.body; // we recover the body
-		var mask = body.collisionFilterMask;   // we store its default mask
-		body.collisionFilterMask = 0;          // we disable all collisions
+		var cont = this.weapon.controllable; // we recover the controllable
+		var mask = cont.FilterMask;          // we store its default mask
+		cont.FilterMask = 0;                 // we disable all collisions
 		var hasHit = ray.intersectWorld(this.world, this._raycastOpt);
-		body.collisionFilterMask = mask;       // we restore collisions
+		cont.FilterMask = mask;              // we restore collisions
 
 		// if we hit something
 		if(hasHit){
@@ -68,9 +68,9 @@ class Rocket extends HERSTAL.Projectile {
 			}
 
 			// if the body is linked to a character
-			if(body.character != null){
+			if(body.controllable != null){
 				// apply direct hit damage to the character
-				body.character.addDamage(this.damage);
+				body.controllable.addDamage(this.damage);
 				// if piercing shots, the projectile is not
 				// destroyed  when passing through characters
 				if(!this.isPiercing) this.isDestroyed = true;

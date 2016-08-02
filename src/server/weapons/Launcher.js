@@ -42,8 +42,8 @@ class Launcher extends HERSTAL.Weapon {
 
 		var proj = new this.projClass(
 			this, // this weapon
-			this.character.position,    // position of the emmiter of the gun
-			this.character.orientation, // orientation of the head of the player
+			this.controllable.Position,    // position of the emmiter of the gun
+			this.controllable.Orientation, // orientation of the head of the player
 			this.projOptions,           // options for the projectile
 		);
 	}

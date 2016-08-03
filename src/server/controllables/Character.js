@@ -38,7 +38,7 @@ class Character extends HERSTAL.Controllable{
 		super(controller);
 
 		// id of the character for online identification
-		this.id = Character.idCounter++;
+		if(options.unsetID !== true) this.id = Character.idCounter++;
 		// id is not safe anymore
 		if(!Number.isSafeInteger(Character.idCounter)){
 			// we roll back to the minimal safe ID
@@ -51,11 +51,12 @@ class Character extends HERSTAL.Controllable{
 		this.currentWeapon = this.weapons.length>0 ? 0 : null;
 
 		// status of the character
-		this.health    = options.health    || 100;
-		this.maxHealth = options.maxHealth || 100;
-		this.armor     = options.armor;
-		this.maxArmor  = options.maxArmor;
-		this.isDead    = false; // the character is not dead yet
+		this.health     = options.health    || 100;
+		this.maxHealth  = options.maxHealth || 100;
+		this.armor      = options.armor;
+		this.maxArmor   = options.maxArmor;
+		this.isDead     = false; // the character is not dead yet
+		this.inVehicule = false; // the character is not in a vehicule
 		// movement of the character
 		this.moveSpeed    = options.moveSpeed    || 20;
 		this.crounchSpeed = options.crounchSpeed || 10;
@@ -190,7 +191,8 @@ class Character extends HERSTAL.Controllable{
 	Global update function of the character
 	*/
 	update(){
-		if(this.controller !== null){
+		// if the character has a controller and is not in a vehicule
+		if(this.controller !== null && !this.inVehicule){
 			var inputs = this.controller.inputs || null;
 			if(inputs !== null){
 				// where the character is looking at ?
@@ -207,6 +209,8 @@ class Character extends HERSTAL.Controllable{
 				this.setWeapon(inputs.weapon);
 			}
 		}
+		// if the character is dead
+		if(this.isDead) this.die(); //call die function
 	}
 	/**
 	Allow the character to look around
@@ -441,6 +445,12 @@ class Character extends HERSTAL.Controllable{
 		}
 	}
 
+	/**
+	Set the weapon used by the character
+	@method setWeapon
+	@param {Number} index The index of the weapon to switch to
+	(or -1 for previous, -2 for next)
+	*/
 	setWeapon( index ){
 		// if the weapons array is empty
 		// or we haven't specified a weapon to switch to
@@ -476,6 +486,11 @@ class Character extends HERSTAL.Controllable{
 		this.currentWeapon = newWeap;
 	}
 
+	/**
+	Add damages to the character
+	@method addDamage
+	@param {Number} damage The damage to deal
+	*/
 	addDamage(damage){
 		// if the character as some armor
 		if( this.armor > 0 ){
@@ -494,6 +509,11 @@ class Character extends HERSTAL.Controllable{
 		if(this.health <= 0) this.isDead = true;
 	}
 
+	/**
+	Add health to the character
+	@method addHealth
+	@param {Number} health The health to give
+	*/
 	addHealth(health){
 		this.health += health;
 		// if health is higher than max
@@ -501,6 +521,11 @@ class Character extends HERSTAL.Controllable{
 			this.health = this.maxHealth; // we cap the value
 	}
 
+	/**
+	Add armor to the character
+	@method addArmor
+	@param {Number} armor The armor to give
+	*/
 	addArmor(armor){
 		if(this.armor != null){
 			this.armor += armor;

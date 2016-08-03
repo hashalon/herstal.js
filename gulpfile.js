@@ -11,6 +11,7 @@ var gulp   = require('gulp'),
 	uglify = require('gulp-uglify'),
 	srcmap = require('gulp-sourcemaps');
 
+// Scripts may be concatenated in a particular order
 gulp.task('build-server', function() {
 	var
 	prepend = "(function (){\n",
@@ -20,6 +21,10 @@ gulp.task('build-server', function() {
 		"src/server/Server.js",
 		"src/server/Util.js",
 		"src/server/Team.js",
+		"src/server/Controller.js",
+		"src/server/Controllable.js",
+		"src/server/Character.js",
+		"src/server/Vehicule.js",
 		"src/server/weapons/Weapon.js",
 		"src/server/projectiles/Projectile.js",
 		"src/server/**/*.js",

@@ -13,3 +13,6 @@ https://www.html5rocks.com/en/tutorials/webrtc/datachannels/
 
 webRTC allow udp/ip data transfert rather than tcp/ip
 udp are not reliable but faster to send
+
+webRTC can be used with Socket.IO
+https://www.webrtc-experiment.com/socket.io/#3228032891810415

@@ -16,3 +16,6 @@ udp are not reliable but faster to send
 
 webRTC can be used with Socket.IO
 https://www.webrtc-experiment.com/socket.io/#3228032891810415
+
+explaination of quake 3 network system
+http://fabiensanglard.net/quake3/network.php
